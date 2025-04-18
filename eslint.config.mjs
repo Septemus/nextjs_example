@@ -8,7 +8,7 @@ import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended'
 export default defineConfig([
 	{
 		files: ['**/*.{js,mjs,cjs,ts,jsx,tsx}'],
-		ignores: ['node_modules/**'],
+		ignores: ['node_modules/**', '.next/**'],
 		plugins: { js },
 		extends: ['js/recommended'],
 	},
