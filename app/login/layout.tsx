@@ -1,4 +1,5 @@
 import AcmeLogo from '@/app/ui/acme-logo';
+import { Suspense } from 'react';
 export default function Layout({ children }: { children: React.ReactNode }) {
 	return (
 		<main className="flex justify-center">
@@ -8,7 +9,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 						<AcmeLogo abbreviation={true} />
 					</div>
 				</div>
-				{children}
+				<Suspense>{children}</Suspense>
 			</div>
 		</main>
 	);
