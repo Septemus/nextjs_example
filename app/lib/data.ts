@@ -1,5 +1,6 @@
 import postgres from 'postgres';
 import {
+	CompanyField,
 	CustomerField,
 	CustomersTableType,
 	InvoiceForm,
@@ -214,5 +215,20 @@ export async function fetchFilteredCustomers(query: string) {
 	} catch (err) {
 		console.error('Database Error:', err);
 		throw new Error('Failed to fetch customer table.');
+	}
+}
+export async function fetchCompanies() {
+	try {
+		const companies = await sql<CompanyField[]>`
+      SELECT
+        *
+      FROM companies
+      ORDER BY name ASC
+    `;
+
+		return companies;
+	} catch (err) {
+		console.error('Database Error:', err);
+		throw new Error('Failed to fetch all companies.');
 	}
 }

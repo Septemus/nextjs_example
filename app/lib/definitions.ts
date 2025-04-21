@@ -80,6 +80,18 @@ export type CustomerField = {
 	name: string;
 };
 
+export type CompanyField = {
+	id: number;
+	name: string;
+	email: string | null;
+	physical_address: string;
+	website: string | null;
+	registration_number: string | null;
+	tax_id: string | null;
+	created_at: Date | string;
+	founder_id: string;
+};
+
 export type InvoiceForm = {
 	id: string;
 	customer_id: string;
