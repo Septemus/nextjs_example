@@ -5,6 +5,8 @@ import { z } from 'zod';
 import { revalidatePath } from 'next/cache';
 import postgres from 'postgres';
 import { redirect } from 'next/navigation';
+import prisma from '@/app/lib/prisma';
+import bcrypt from 'bcrypt';
 const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' });
 
 const FormSchema = z.object({
@@ -133,4 +135,48 @@ export async function authenticate(
 		}
 		throw error;
 	}
+}
+
+export async function register(regForm: {
+	email: string;
+	name: string;
+	password: string;
+	confirmPassword: string;
+	bindCompany: null | number;
+	companyName: string;
+	physicalAddress: string;
+	registrationNumber: string;
+	taxId: string;
+}) {
+	const hashedPassword = await bcrypt.hash(regForm.password, 10);
+	if (regForm.bindCompany !== null) {
+		await prisma.users.create({
+			data: {
+				email: regForm.email,
+				name: regForm.name,
+				password: hashedPassword,
+				companiesId: regForm.bindCompany,
+			},
+		});
+	} else {
+		await prisma.users.create({
+			data: {
+				email: regForm.email,
+				name: regForm.name,
+				password: hashedPassword,
+				foundedCompany: {
+					create: {
+						name: regForm.companyName,
+						physicalAddress: regForm.physicalAddress,
+						registrationNumber: regForm.registrationNumber,
+						taxId: regForm.taxId,
+					},
+				},
+			},
+		});
+	}
+	await signIn('credentials', {
+		email: regForm.email,
+		password: regForm.password,
+	});
 }

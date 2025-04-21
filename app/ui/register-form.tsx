@@ -10,15 +10,17 @@ import {
 import { ArrowRightIcon } from '@heroicons/react/20/solid';
 import { Button } from './button';
 import { useState } from 'react';
-import { useSearchParams } from 'next/navigation';
-import { CompanyField } from '../lib/definitions';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { companies } from '@/generated/prisma';
 import * as Yup from 'yup';
+import { register } from '@/app/lib/actions';
 
 export default function RegisterForm({
 	companies,
 }: {
-	companies: CompanyField[];
+	companies: companies[];
 }) {
+	const { replace } = useRouter();
 	const [addingCompany, setAddingCompany] = useState(false);
 	const searchParams = useSearchParams();
 	const callbackUrl = searchParams.get('callbackUrl') || '/dashboard';
@@ -50,16 +52,17 @@ export default function RegisterForm({
 			name: '',
 			password: '',
 			confirmPassword: '',
-			bindCompany: '',
+			bindCompany: null as null | number,
 			companyName: '',
 			physicalAddress: '',
 			registrationNumber: '',
 			taxId: '',
 		},
 		validationSchema,
-		onSubmit: (values) => {
+		onSubmit: async (values) => {
 			console.log('注册数据:', values);
-			// register(values) 你的注册逻辑
+			await register(values);
+			replace('/dashboard');
 		},
 	});
 	const renderInput = (
@@ -110,7 +113,7 @@ export default function RegisterForm({
 						name="bindCompany"
 						onChange={formik.handleChange}
 						onBlur={formik.handleBlur}
-						value={formik.values.bindCompany}
+						value={formik.values.bindCompany ?? undefined}
 						className="peer block w-full rounded-md border border-gray-200 py-[9px] pl-10 text-sm outline-2 placeholder:text-gray-500"
 					>
 						<option value="">请选择企业</option>
