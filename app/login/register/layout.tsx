@@ -23,7 +23,7 @@ export default function Layout({ children }: { children: ReactNode }) {
 					<option value="">请选择</option>
 					<option value="manufacturer">生产商</option>
 					<option value="distributor">销售商</option>
-					<option value="buyer">消费者</option>
+					<option value="customer">消费者</option>
 				</select>
 			</div>
 			{children}
