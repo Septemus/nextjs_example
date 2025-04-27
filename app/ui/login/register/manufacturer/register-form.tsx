@@ -8,7 +8,7 @@ import {
 	BuildingOfficeIcon,
 } from '@heroicons/react/24/outline';
 import { ArrowRightIcon } from '@heroicons/react/20/solid';
-import { Button } from './button';
+import { Button } from '@/app/ui/button';
 import { useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { companies } from '@/generated/prisma';

@@ -1,4 +1,4 @@
-import RegisterForm from '@/app/ui/register-form';
+import RegisterForm from '@/app/ui/login/register/manufacturer/register-form';
 import { Metadata } from 'next';
 import prisma from '@/app/lib/prisma';
 export const metadata: Metadata = {
