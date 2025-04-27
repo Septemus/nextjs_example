@@ -24,7 +24,6 @@ export default function RegisterForm({
 	const { replace } = useRouter();
 	const [addingCompany, setAddingCompany] = useState(false);
 	const searchParams = useSearchParams();
-	const callbackUrl = searchParams.get('callbackUrl') || '/dashboard';
 	const validationSchema = Yup.object({
 		email: Yup.string().email('邮箱格式不正确').required('必填'),
 		name: Yup.string().required('必填'),
@@ -56,6 +55,7 @@ export default function RegisterForm({
 			bindCompany: null as null | string,
 			companyName: '',
 			physicalAddress: '',
+			redirectTo: searchParams.get('callbackUrl') || '/dashboard',
 			registrationNumber: '',
 			taxId: '',
 			addingCompany: false,
@@ -66,7 +66,6 @@ export default function RegisterForm({
 			values.addingCompany = addingCompany;
 			console.log('注册数据:', values);
 			await register(values);
-			replace('/dashboard');
 		},
 	});
 	const renderInput = (
@@ -201,7 +200,12 @@ export default function RegisterForm({
 					)}
 					{companySection}
 				</div>
-				<input type="hidden" name="redirectTo" value={callbackUrl} />
+				<input
+					type="hidden"
+					name="redirectTo"
+					value={formik.values.redirectTo}
+					onChange={formik.handleChange}
+				/>
 				<hr className="mt-4" />
 				<Button className="mt-4 w-full">
 					注册{' '}

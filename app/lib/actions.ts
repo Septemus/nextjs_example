@@ -148,6 +148,7 @@ export async function registerBussiness(regForm: {
 	physicalAddress: string;
 	registrationNumber: string;
 	taxId: string;
+	redirectTo: string;
 	addingCompany: boolean;
 	role: Role;
 }) {
@@ -186,6 +187,7 @@ export async function registerBussiness(regForm: {
 	await signIn('credentials', {
 		email: regForm.email,
 		password: regForm.password,
+		redirectTo: regForm.redirectTo,
 	});
 }
 
@@ -194,6 +196,7 @@ export async function registerCustomer(regForm: {
 	name: string;
 	password: string;
 	confirmPassword: string;
+	redirectTo: string;
 }) {
 	const hashedPassword = await bcrypt.hash(regForm.password, 10);
 	await prisma.users.create({
@@ -207,5 +210,6 @@ export async function registerCustomer(regForm: {
 	await signIn('credentials', {
 		email: regForm.email,
 		password: regForm.password,
+		redirectTo: regForm.redirectTo,
 	});
 }
