@@ -37,7 +37,7 @@ export default function RegisterForm({
 			.required('必填'),
 		bindCompany: addingCompany
 			? Yup.mixed().notRequired()
-			: Yup.number().required('必选'),
+			: Yup.string().notRequired(),
 		companyName: addingCompany
 			? Yup.string().required('必填')
 			: Yup.string(),
@@ -59,7 +59,7 @@ export default function RegisterForm({
 			registrationNumber: '',
 			taxId: '',
 			addingCompany: false,
-			role: Role.MANUFACTURER,
+			role: Role.DISTRIBUTOR,
 		},
 		validationSchema,
 		onSubmit: async (values) => {
@@ -109,7 +109,7 @@ export default function RegisterForm({
 					className="block text-xs font-medium text-gray-900 mb-1"
 					htmlFor="bindCompany"
 				>
-					绑定企业
+					绑定企业（可选）
 				</label>
 				<div className="relative">
 					<select

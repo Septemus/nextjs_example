@@ -7,6 +7,7 @@ import postgres from 'postgres';
 import { redirect } from 'next/navigation';
 import prisma from '@/app/lib/prisma';
 import bcrypt from 'bcrypt';
+import { Role } from '@/generated/prisma';
 const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' });
 
 const FormSchema = z.object({
@@ -137,25 +138,31 @@ export async function authenticate(
 	}
 }
 
-export async function register(regForm: {
+export async function registerBussiness(regForm: {
 	email: string;
 	name: string;
 	password: string;
 	confirmPassword: string;
-	bindCompany: null | number;
+	bindCompany: null | string;
 	companyName: string;
 	physicalAddress: string;
 	registrationNumber: string;
 	taxId: string;
+	addingCompany: boolean;
+	role: Role;
 }) {
 	const hashedPassword = await bcrypt.hash(regForm.password, 10);
-	if (regForm.bindCompany !== null) {
+	if (!regForm.addingCompany) {
 		await prisma.users.create({
 			data: {
 				email: regForm.email,
 				name: regForm.name,
 				password: hashedPassword,
-				companiesId: regForm.bindCompany,
+				role: regForm.role,
+				companiesId:
+					regForm.bindCompany === null
+						? null
+						: parseInt(regForm.bindCompany),
 			},
 		});
 	} else {
@@ -163,6 +170,7 @@ export async function register(regForm: {
 			data: {
 				email: regForm.email,
 				name: regForm.name,
+				role: regForm.role,
 				password: hashedPassword,
 				foundedCompany: {
 					create: {
