@@ -14,6 +14,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { companies } from '@/generated/prisma';
 import * as Yup from 'yup';
 import { register } from '@/app/lib/actions';
+import Link from 'next/link';
 
 export default function RegisterForm({
 	companies,
@@ -181,7 +182,7 @@ export default function RegisterForm({
 	}
 	return (
 		<form onSubmit={formik.handleSubmit} className="space-y-3">
-			<div className="flex-1 rounded-lg bg-gray-50 px-6 pb-4 pt-8">
+			<div className="flex-1 rounded-lg  px-6 pb-4 pt-8">
 				<h1 className={`${lusitana.className} mb-3 text-2xl`}>
 					注册以继续.
 				</h1>
@@ -203,10 +204,12 @@ export default function RegisterForm({
 					注册{' '}
 					<ArrowRightIcon className="ml-auto h-5 w-5 text-gray-50" />
 				</Button>
-				<Button className="mt-4 w-full" type="button">
-					返回登陆{' '}
-					<ArrowRightIcon className="ml-auto h-5 w-5 text-gray-50" />
-				</Button>
+				<Link href={'/login'}>
+					<Button className="mt-4 w-full" type="button">
+						返回登陆{' '}
+						<ArrowRightIcon className="ml-auto h-5 w-5 text-gray-50" />
+					</Button>
+				</Link>
 			</div>
 		</form>
 	);
