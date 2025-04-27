@@ -43,6 +43,8 @@ model users {
   role  Role    @default(CUSTOMER)
   mycompany      companies?  @relation("employment", fields: [companiesId], references: [id], onUpdate: Cascade)
   foundedCompany companies[] @relation("found")
+  createdProducts products[] @relation("created_products") // 🔥加这行
+  ownedProducts   products[] @relation("owned_products")   // 🔥加这行
 }
 
 model companies {
@@ -55,4 +57,33 @@ model companies {
   createdAt          DateTime @default(now())
   employees          users[]  @relation("employment")
   founder            users    @relation(fields: [founderId], references: [id], onUpdate: Cascade, name: "found")
+  products           products[] @relation("company_products") // 🔥加这行
+
+}
+
+enum ProductStatus {
+  MANUFACTURING
+  DISTRIBUTING
+  FOR_SALE
+  SOLD
+}
+
+model products {
+  id                Int          @id @default(autoincrement())
+  name              String       // 商品名称
+  description       String?      // 商品描述（可选）
+  coverUrl          String?      // 商品图片链接（可选）
+  serialNumber      String       @unique // 商品序列号（每件商品唯一）
+  blockchainHash    String?       @unique // 区块链记录的哈希
+  manufactureDate   DateTime     // 制造日期
+  companyId         Int          // 制造公司 ID
+  creatorId         String        @db.Uuid // 录入商品的生产商用户 ID
+
+  currentOwnerId    String       @db.Uuid // 当前持有者用户 ID
+  status            ProductStatus @default(MANUFACTURING) // 当前商品状态
+  createdAt         DateTime     @default(now()) //商品登记的日期，和制造日期不一样
+
+  manufacturerCompany      companies    @relation("company_products",fields: [companyId], references: [id], onUpdate: Cascade)
+  creator           users         @relation("created_products", fields: [creatorId], references: [id], onUpdate: Cascade)
+  currentOwner      users        @relation("owned_products",fields: [currentOwnerId], references: [id], onUpdate: Cascade)
 }

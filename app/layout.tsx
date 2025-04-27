@@ -2,6 +2,7 @@ import '@/app/ui/global.scss';
 import { inter } from '@/app/ui/fonts';
 import { Metadata } from 'next';
 import { AntdRegistry } from '@ant-design/nextjs-registry';
+import { ConfigProvider } from 'antd';
 
 export const metadata: Metadata = {
 	title: {
@@ -20,7 +21,18 @@ export default function RootLayout({
 	return (
 		<html lang="en">
 			<body className={`${inter.className} antialiased`}>
-				<AntdRegistry>{children}</AntdRegistry>
+				<AntdRegistry>
+					<ConfigProvider
+						theme={{
+							token: {
+								// Seed Token
+								colorPrimary: '#f97316',
+							},
+						}}
+					>
+						{children}
+					</ConfigProvider>
+				</AntdRegistry>
 			</body>
 		</html>
 	);
