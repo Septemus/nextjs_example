@@ -188,16 +188,21 @@ const ProductTable: React.FC<ProductTableProps> = ({ products }) => {
 			title: '操作',
 			key: 'action',
 			render: (_: any, record: Product) => (
-				<Popconfirm
-					title="确定要删除吗？"
-					onConfirm={() => handleDelete(record.id)}
-					okText="是"
-					cancelText="否"
-				>
-					<Button type="link" danger>
-						删除
+				<>
+					<Popconfirm
+						title="确定要删除吗？"
+						onConfirm={() => handleDelete(record.id)}
+						okText="是"
+						cancelText="否"
+					>
+						<Button variant="solid" color="danger" className="mr-2">
+							删除
+						</Button>
+					</Popconfirm>
+					<Button variant="solid" color="blue">
+						商品上链
 					</Button>
-				</Popconfirm>
+				</>
 			),
 		},
 	];
