@@ -7,7 +7,7 @@ import Highlighter from 'react-highlight-words';
 import type { InputRef, TableColumnType } from 'antd';
 import type { FilterDropdownProps } from 'antd/es/table/interface';
 import Link from 'next/link';
-import { useSimulateContract, useWriteContract } from 'wagmi';
+import { useWriteContract } from 'wagmi';
 import { abi, contractAddress } from '@/contracts/index';
 import { products } from '@/generated/prisma';
 import { fetchCompanyById, fetchUserById } from '@/app/lib/data';
@@ -28,12 +28,10 @@ type ProductInput = {
 type DataIndex = keyof products;
 
 const ProductTable: React.FC<ProductTableProps> = ({ products }) => {
+	const [messageApi, contextHolder] = message.useMessage();
 	const [dataSource, setDataSource] = useState(products);
-	const [selectedProduct, setSelectedProduct] = useState<products | null>(
-		null,
-	);
-	const [productInput, setProductInput] = useState<ProductInput | null>(null);
-	useEffect(() => {
+	const { writeContractAsync, isPending } = useWriteContract();
+	const handleUploadToBlockchain = async (record: products) => {
 		async function computeProductInput(p: products): Promise<ProductInput> {
 			return {
 				name: p.name,
@@ -46,36 +44,26 @@ const ProductTable: React.FC<ProductTableProps> = ({ products }) => {
 				companyName: (await fetchCompanyById(p.companyId))?.name!,
 			};
 		}
-		if (selectedProduct) {
-			computeProductInput(selectedProduct).then((res) => {
-				setProductInput(res);
-			});
-		}
-	}, [selectedProduct]);
-	const { writeContractAsync } = useWriteContract();
-	// 先模拟（模拟不会上链）
-	const { data } = useSimulateContract({
-		address: contractAddress.ProductRegistry as `0x${string}`,
-		abi: abi.ProductRegistry.abi,
-		functionName: 'registerProduct',
-		args: [productInput],
-	});
-	const handleUploadToBlockchain = async () => {
 		try {
 			// 构造上链参数（注意字段顺序一定和Solidity里结构体一一对应）
-
-			if (!data) {
-				message.error('无法上链');
-				return;
-			}
-
-			// 真正发交易
-			const tx = await writeContractAsync(data.request);
-			message.success('商品上链交易发送成功！');
+			messageApi.loading('商品上链中');
+			await new Promise((res) => {
+				setTimeout(res, 1500);
+			});
+			const productInput = await computeProductInput(record);
+			console.log('productInput:', Object.values(productInput));
+			// 发交易
+			const tx = await writeContractAsync({
+				address: contractAddress.ProductRegistry as `0x${string}`,
+				abi: abi.ProductRegistry.abi,
+				functionName: 'registerProduct',
+				args: Object.values(productInput),
+			});
+			messageApi.success('商品上链交易发送成功！');
 			console.log('交易哈希:', tx);
 		} catch (error: any) {
 			console.error(error);
-			message.error(error.shortMessage || '上链失败');
+			messageApi.error(error.shortMessage || '上链失败');
 		}
 	};
 
@@ -85,7 +73,7 @@ const ProductTable: React.FC<ProductTableProps> = ({ products }) => {
 
 	const handleDelete = (id: number) => {
 		setDataSource(dataSource.filter((item) => item.id !== id));
-		message.success('删除成功');
+		messageApi.success('删除成功');
 		// ❗这里实际项目还应该调用API去删除数据库里的数据
 	};
 
@@ -256,9 +244,9 @@ const ProductTable: React.FC<ProductTableProps> = ({ products }) => {
 					<Button
 						variant="solid"
 						color="blue"
+						loading={isPending}
 						onClick={() => {
-							setSelectedProduct(record);
-							handleUploadToBlockchain();
+							handleUploadToBlockchain(record);
 						}}
 					>
 						商品上链
@@ -270,6 +258,7 @@ const ProductTable: React.FC<ProductTableProps> = ({ products }) => {
 
 	return (
 		<>
+			{contextHolder}
 			<div className="flex justify-end mb-4">
 				<Link href="/dashboard/product/create">
 					<Button type="primary">新增商品</Button>
