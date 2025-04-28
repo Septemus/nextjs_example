@@ -1,14 +1,17 @@
 'use client';
 
-import prisma from '@/app/lib/prisma';
-import { Button, DatePicker, Input } from 'antd';
+import { fetchCompanies, fetchCompanyOfUser } from '@/app/lib/data';
+import { companies } from '@/generated/prisma';
+import { Button, DatePicker, Input, Select } from 'antd';
 import dayjs from 'dayjs';
 import { useFormik } from 'formik';
+import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import * as Yup from 'yup';
 
 const CreateProductPage = () => {
+	const session = useSession();
 	const router = useRouter();
 	const formik = useFormik({
 		initialValues: {
@@ -28,10 +31,21 @@ const CreateProductPage = () => {
 		},
 	});
 	const [currentTime, setCurrentTime] = useState(dayjs());
+	const [companies, setCompanies] = useState<null | companies[]>(null);
+	const [mycompany, setMyCompany] = useState<companies | null>(null);
 	useEffect(() => {
 		setInterval(() => {
 			setCurrentTime(dayjs());
 		}, 1000);
+		fetchCompanies().then((res) => {
+			setCompanies(res);
+		});
+		const email = session.data?.user?.email;
+		if (email) {
+			fetchCompanyOfUser(email).then((res) => {
+				setMyCompany(res);
+			});
+		}
 	}, []);
 	return (
 		<div className="p-8">
@@ -127,6 +141,17 @@ const CreateProductPage = () => {
 						onChange={(date) => {
 							formik.setFieldValue('createdAt', date.toDate());
 						}}
+					/>
+				</div>
+				<div>
+					<label className="block mb-2 font-medium">制造公司</label>
+					<Select
+						className="w-full"
+						disabled
+						options={companies?.map((v) => {
+							return { value: v.id, label: v.name };
+						})}
+						value={mycompany?.id}
 					/>
 				</div>
 

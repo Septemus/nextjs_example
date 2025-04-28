@@ -1,3 +1,4 @@
+'use server';
 import postgres from 'postgres';
 import {
 	CompanyField,
@@ -9,6 +10,7 @@ import {
 	Revenue,
 } from './definitions';
 import { formatCurrency } from './utils';
+import prisma from './prisma';
 
 const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' });
 
@@ -218,17 +220,17 @@ export async function fetchFilteredCustomers(query: string) {
 	}
 }
 export async function fetchCompanies() {
-	try {
-		const companies = await sql<CompanyField[]>`
-      SELECT
-        *
-      FROM companies
-      ORDER BY name ASC
-    `;
-
-		return companies;
-	} catch (err) {
-		console.error('Database Error:', err);
-		throw new Error('Failed to fetch all companies.');
-	}
+	return await prisma.companies.findMany();
+}
+export async function fetchCompanyOfUser(email: string) {
+	// 根据用户邮箱查公司 ID
+	const user = await prisma.users.findUnique({
+		where: { email },
+		select: { foundedCompany: true, companiesId: true },
+	});
+	return await prisma.companies.findUnique({
+		where: {
+			id: user?.companiesId ?? user?.foundedCompany[0].id,
+		},
+	});
 }
