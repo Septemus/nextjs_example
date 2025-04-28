@@ -234,3 +234,6 @@ export async function fetchCompanyOfUser(email: string) {
 		},
 	});
 }
+export async function fetchUsers() {
+	return await prisma.users.findMany();
+}

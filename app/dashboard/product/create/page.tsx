@@ -1,7 +1,7 @@
 'use client';
 
-import { fetchCompanies, fetchCompanyOfUser } from '@/app/lib/data';
-import { companies } from '@/generated/prisma';
+import { fetchCompanies, fetchCompanyOfUser, fetchUsers } from '@/app/lib/data';
+import { companies, users } from '@/generated/prisma';
 import { Button, DatePicker, Input, Select } from 'antd';
 import dayjs from 'dayjs';
 import { useFormik } from 'formik';
@@ -33,12 +33,16 @@ const CreateProductPage = () => {
 	const [currentTime, setCurrentTime] = useState(dayjs());
 	const [companies, setCompanies] = useState<null | companies[]>(null);
 	const [mycompany, setMyCompany] = useState<companies | null>(null);
+	const [users, setUsers] = useState<users[] | null>(null);
 	useEffect(() => {
 		setInterval(() => {
 			setCurrentTime(dayjs());
 		}, 1000);
 		fetchCompanies().then((res) => {
 			setCompanies(res);
+		});
+		fetchUsers().then((res) => {
+			setUsers(res);
 		});
 		const email = session.data?.user?.email;
 		if (email) {
@@ -141,6 +145,19 @@ const CreateProductPage = () => {
 						onChange={(date) => {
 							formik.setFieldValue('createdAt', date.toDate());
 						}}
+					/>
+				</div>
+				<div>
+					<label className="block mb-2 font-medium">
+						商品登记负责人
+					</label>
+					<Select
+						className="w-full"
+						disabled
+						options={users?.map((v) => {
+							return { value: v.email, label: v.name };
+						})}
+						value={session.data?.user?.email}
 					/>
 				</div>
 				<div>
