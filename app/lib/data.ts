@@ -237,3 +237,10 @@ export async function fetchCompanyOfUser(email: string) {
 export async function fetchUsers() {
 	return await prisma.users.findMany();
 }
+export async function fetchUserByEmail(email: string) {
+	return await prisma.users.findUnique({
+		where: {
+			email,
+		},
+	});
+}

@@ -1,7 +1,12 @@
 'use client';
 
-import { fetchCompanies, fetchCompanyOfUser, fetchUsers } from '@/app/lib/data';
-import { companies, users } from '@/generated/prisma';
+import {
+	fetchCompanies,
+	fetchCompanyOfUser,
+	fetchUsers,
+	fetchUserByEmail,
+} from '@/app/lib/data';
+import { companies, ProductStatus, users } from '@/generated/prisma';
 import { Button, DatePicker, Input, Select } from 'antd';
 import dayjs from 'dayjs';
 import { useFormik } from 'formik';
@@ -20,6 +25,10 @@ const CreateProductPage = () => {
 			manufactureDate: null as Date | null,
 			createdAt: null as Date | null,
 			serialNumber: '',
+			currentOwnerId: '',
+			creatorId: '',
+			status: ProductStatus.MANUFACTURING,
+			companyId: null as number | null,
 		},
 		validationSchema: Yup.object({
 			name: Yup.string().required('商品名称不能为空'),
@@ -32,7 +41,6 @@ const CreateProductPage = () => {
 	});
 	const [currentTime, setCurrentTime] = useState(dayjs());
 	const [companies, setCompanies] = useState<null | companies[]>(null);
-	const [mycompany, setMyCompany] = useState<companies | null>(null);
 	const [users, setUsers] = useState<users[] | null>(null);
 	useEffect(() => {
 		setInterval(() => {
@@ -46,8 +54,13 @@ const CreateProductPage = () => {
 		});
 		const email = session.data?.user?.email;
 		if (email) {
+			fetchUserByEmail(email).then((res) => {
+				formik.setFieldValue('currentOwnerId', res?.id);
+				formik.setFieldValue('creatorId', res?.id);
+			});
 			fetchCompanyOfUser(email).then((res) => {
-				setMyCompany(res);
+				console.log(session.data?.user);
+				formik.setFieldValue('companyId', res?.id);
 			});
 		}
 	}, []);
@@ -155,9 +168,9 @@ const CreateProductPage = () => {
 						className="w-full"
 						disabled
 						options={users?.map((v) => {
-							return { value: v.email, label: v.name };
+							return { value: v.id, label: v.name };
 						})}
-						value={session.data?.user?.email}
+						value={formik.values.creatorId}
 					/>
 				</div>
 				<div>
@@ -168,7 +181,7 @@ const CreateProductPage = () => {
 						options={companies?.map((v) => {
 							return { value: v.id, label: v.name };
 						})}
-						value={mycompany?.id}
+						value={formik.values.companyId}
 					/>
 				</div>
 
