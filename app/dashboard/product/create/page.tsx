@@ -1,5 +1,6 @@
 'use client';
 
+import { createProduct } from '@/app/lib/actions';
 import {
 	fetchCompanies,
 	fetchCompanyOfUser,
@@ -7,7 +8,7 @@ import {
 	fetchUserByEmail,
 } from '@/app/lib/data';
 import { companies, ProductStatus, users } from '@/generated/prisma';
-import { Button, DatePicker, Input, Select } from 'antd';
+import { Button, DatePicker, Input, Select, message } from 'antd';
 import dayjs from 'dayjs';
 import { useFormik } from 'formik';
 import { useSession } from 'next-auth/react';
@@ -16,14 +17,16 @@ import { useEffect, useState } from 'react';
 import * as Yup from 'yup';
 
 const CreateProductPage = () => {
+	const [messageApi, contextHolder] = message.useMessage();
 	const session = useSession();
 	const router = useRouter();
+	const [currentTime, setCurrentTime] = useState(dayjs());
 	const formik = useFormik({
 		initialValues: {
 			name: '',
 			description: '',
 			manufactureDate: null as Date | null,
-			createdAt: null as Date | null,
+			createdAt: currentTime.toDate(),
 			serialNumber: '',
 			currentOwnerId: '',
 			creatorId: '',
@@ -34,12 +37,27 @@ const CreateProductPage = () => {
 			name: Yup.string().required('商品名称不能为空'),
 			serialNumber: Yup.string().required('序列号不能为空'),
 			description: Yup.string(),
+			manufactureDate: Yup.date().required('生产日期不能为空'),
 		}),
 		onSubmit: async () => {
 			// 提交交给 form 的 action，不在这里处理
+			try {
+				await createProduct(formik.values as any);
+				messageApi.open({
+					type: 'success',
+					content: '添加商品成功',
+				});
+				router.back();
+			} catch (err) {
+				console.error(err);
+				messageApi.open({
+					type: 'error',
+					content: '添加商品失败',
+				});
+			}
 		},
 	});
-	const [currentTime, setCurrentTime] = useState(dayjs());
+
 	const [companies, setCompanies] = useState<null | companies[]>(null);
 	const [users, setUsers] = useState<users[] | null>(null);
 	useEffect(() => {
@@ -66,6 +84,7 @@ const CreateProductPage = () => {
 	}, []);
 	return (
 		<div className="p-8">
+			{contextHolder}
 			<h1 className="text-2xl font-bold mb-6">新增商品</h1>
 
 			<form

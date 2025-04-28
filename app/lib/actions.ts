@@ -7,7 +7,7 @@ import postgres from 'postgres';
 import { redirect } from 'next/navigation';
 import prisma from '@/app/lib/prisma';
 import bcrypt from 'bcrypt';
-import { Role } from '@/generated/prisma';
+import { ProductStatus, Role } from '@/generated/prisma';
 const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' });
 
 const FormSchema = z.object({
@@ -211,5 +211,20 @@ export async function registerCustomer(regForm: {
 		email: regForm.email,
 		password: regForm.password,
 		redirectTo: regForm.redirectTo,
+	});
+}
+export async function createProduct(p: {
+	name: string;
+	description: string;
+	manufactureDate: Date;
+	createdAt: Date;
+	serialNumber: string;
+	currentOwnerId: string;
+	creatorId: string;
+	status: ProductStatus;
+	companyId: number;
+}) {
+	await prisma.products.create({
+		data: p,
 	});
 }
