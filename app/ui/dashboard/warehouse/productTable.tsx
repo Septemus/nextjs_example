@@ -1,29 +1,83 @@
 'use client';
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Table, Button, Popconfirm, message, Input, Space } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
 import Highlighter from 'react-highlight-words';
 import type { InputRef, TableColumnType } from 'antd';
 import type { FilterDropdownProps } from 'antd/es/table/interface';
 import Link from 'next/link';
-
-// 接收 props 类型
-interface Product {
-	id: number;
-	name: string;
-	description: string | null;
-	serialNumber: string;
-}
+import { useSimulateContract, useWriteContract } from 'wagmi';
+import { abi, contractAddress } from '@/contracts/index';
+import { products } from '@/generated/prisma';
+import { fetchCompanyById, fetchUserById } from '@/app/lib/data';
 
 interface ProductTableProps {
-	products: Product[];
+	products: products[];
 }
-
-type DataIndex = keyof Product;
+type ProductInput = {
+	name: string;
+	description: string;
+	serialNumber: string;
+	creatorEmail: string;
+	manufactureDate: number;
+	createdAt: number;
+	companyId: number;
+	companyName: string;
+};
+type DataIndex = keyof products;
 
 const ProductTable: React.FC<ProductTableProps> = ({ products }) => {
 	const [dataSource, setDataSource] = useState(products);
+	const [selectedProduct, setSelectedProduct] = useState<products | null>(
+		null,
+	);
+	const [productInput, setProductInput] = useState<ProductInput | null>(null);
+	useEffect(() => {
+		async function computeProductInput(p: products): Promise<ProductInput> {
+			return {
+				name: p.name,
+				description: p.description || '',
+				serialNumber: p.serialNumber,
+				creatorEmail: (await fetchUserById(p.creatorId))?.email!,
+				manufactureDate: p.manufactureDate.getTime(),
+				createdAt: p.createdAt.getTime(),
+				companyId: p.companyId,
+				companyName: (await fetchCompanyById(p.companyId))?.name!,
+			};
+		}
+		if (selectedProduct) {
+			computeProductInput(selectedProduct).then((res) => {
+				setProductInput(res);
+			});
+		}
+	}, [selectedProduct]);
+	const { writeContractAsync } = useWriteContract();
+	// 先模拟（模拟不会上链）
+	const { data } = useSimulateContract({
+		address: contractAddress.ProductRegistry as `0x${string}`,
+		abi: abi.ProductRegistry.abi,
+		functionName: 'registerProduct',
+		args: [productInput],
+	});
+	const handleUploadToBlockchain = async () => {
+		try {
+			// 构造上链参数（注意字段顺序一定和Solidity里结构体一一对应）
+
+			if (!data) {
+				message.error('无法上链');
+				return;
+			}
+
+			// 真正发交易
+			const tx = await writeContractAsync(data.request);
+			message.success('商品上链交易发送成功！');
+			console.log('交易哈希:', tx);
+		} catch (error: any) {
+			console.error(error);
+			message.error(error.shortMessage || '上链失败');
+		}
+	};
 
 	const [searchText, setSearchText] = useState('');
 	const [searchedColumn, setSearchedColumn] = useState('');
@@ -52,7 +106,7 @@ const ProductTable: React.FC<ProductTableProps> = ({ products }) => {
 
 	const getColumnSearchProps = (
 		dataIndex: DataIndex,
-	): TableColumnType<Product> => ({
+	): TableColumnType<products> => ({
 		filterDropdown: ({
 			setSelectedKeys,
 			selectedKeys,
@@ -187,7 +241,7 @@ const ProductTable: React.FC<ProductTableProps> = ({ products }) => {
 		{
 			title: '操作',
 			key: 'action',
-			render: (_: any, record: Product) => (
+			render: (_: any, record: products) => (
 				<>
 					<Popconfirm
 						title="确定要删除吗？"
@@ -199,7 +253,14 @@ const ProductTable: React.FC<ProductTableProps> = ({ products }) => {
 							删除
 						</Button>
 					</Popconfirm>
-					<Button variant="solid" color="blue">
+					<Button
+						variant="solid"
+						color="blue"
+						onClick={() => {
+							setSelectedProduct(record);
+							handleUploadToBlockchain();
+						}}
+					>
 						商品上链
 					</Button>
 				</>

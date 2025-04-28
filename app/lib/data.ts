@@ -222,6 +222,13 @@ export async function fetchFilteredCustomers(query: string) {
 export async function fetchCompanies() {
 	return await prisma.companies.findMany();
 }
+export async function fetchCompanyById(id: number) {
+	return await prisma.companies.findUnique({
+		where: {
+			id,
+		},
+	});
+}
 export async function fetchCompanyOfUser(email: string) {
 	// 根据用户邮箱查公司 ID
 	const user = await prisma.users.findUnique({
@@ -241,6 +248,14 @@ export async function fetchUserByEmail(email: string) {
 	return await prisma.users.findUnique({
 		where: {
 			email,
+		},
+	});
+}
+
+export async function fetchUserById(id: string) {
+	return await prisma.users.findUnique({
+		where: {
+			id,
 		},
 	});
 }
