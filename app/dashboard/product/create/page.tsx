@@ -1,8 +1,11 @@
 'use client';
 
-import { Button, Input } from 'antd';
+import prisma from '@/app/lib/prisma';
+import { Button, DatePicker, Input } from 'antd';
+import dayjs from 'dayjs';
 import { useFormik } from 'formik';
 import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 import * as Yup from 'yup';
 
 const CreateProductPage = () => {
@@ -11,6 +14,8 @@ const CreateProductPage = () => {
 		initialValues: {
 			name: '',
 			description: '',
+			manufactureDate: null as Date | null,
+			createdAt: null as Date | null,
 			serialNumber: '',
 		},
 		validationSchema: Yup.object({
@@ -22,7 +27,12 @@ const CreateProductPage = () => {
 			// 提交交给 form 的 action，不在这里处理
 		},
 	});
-
+	const [currentTime, setCurrentTime] = useState(dayjs());
+	useEffect(() => {
+		setInterval(() => {
+			setCurrentTime(dayjs());
+		}, 1000);
+	}, []);
 	return (
 		<div className="p-8">
 			<h1 className="text-2xl font-bold mb-6">新增商品</h1>
@@ -74,6 +84,50 @@ const CreateProductPage = () => {
 							{formik.errors.serialNumber}
 						</div>
 					) : null}
+				</div>
+				<div>
+					<label className="block mb-2 font-medium">制造日期</label>
+					<DatePicker
+						className="w-full"
+						name="manufactureDate"
+						placeholder="选择商品制造日期"
+						showTime
+						value={
+							formik.values.manufactureDate
+								? dayjs(formik.values.manufactureDate)
+								: null
+						}
+						onChange={(date) => {
+							formik.setFieldValue(
+								'manufactureDate',
+								date.toDate(),
+							);
+						}}
+					/>
+					{formik.touched.manufactureDate &&
+						formik.errors.manufactureDate && (
+							<div className="text-red-500 text-sm mt-1">
+								{formik.errors.manufactureDate}
+							</div>
+						)}
+				</div>
+				{/* 👇 不可编辑但展示 */}
+
+				<div>
+					<label className="block mb-2 font-medium">
+						商品登记日期
+					</label>
+					<DatePicker
+						className="w-full"
+						name="createdAt"
+						placeholder="商品登记日期（当前）"
+						showTime
+						disabled
+						value={currentTime}
+						onChange={(date) => {
+							formik.setFieldValue('createdAt', date.toDate());
+						}}
+					/>
 				</div>
 
 				<Button type="primary" htmlType="submit" className="mr-4">
