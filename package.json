@@ -28,6 +28,7 @@
   },
   "devDependencies": {
     "@ant-design/nextjs-registry": "^1.0.2",
+    "@ant-design/web3": "^1.23.0",
     "@eslint/js": "^9.24.0",
     "@moralisweb3/next": "^2.27.2",
     "@prisma/client": "^6.6.0",
