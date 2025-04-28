@@ -175,6 +175,7 @@ const ProductTable: React.FC<ProductTableProps> = ({ products }) => {
 			title: '描述',
 			dataIndex: 'description',
 			key: 'description',
+			ellipsis: true,
 			...getColumnSearchProps('description'),
 		},
 		{
