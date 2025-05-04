@@ -5,11 +5,11 @@ import { Button, message } from 'antd';
 import Link from 'next/link';
 // import { useWriteContract } from 'wagmi';
 // import { abi, contractAddress } from '@/contracts/index';
-import { product_types, products } from '@/generated/prisma';
+import { product_types, products, ProductStatus } from '@/generated/prisma';
 // import { fetchCompanyById, fetchUserById } from '@/app/lib/data';
-
+type Row = product_types & { products: products[] };
 interface ProductTableProps {
-	product_types: (product_types & { products: products[] })[];
+	product_types: Row[];
 }
 // type ProductInput = {
 // 	name: string;
@@ -83,7 +83,56 @@ const ProductTable: React.FC<ProductTableProps> = ({ product_types }) => {
 					<Button type="primary">新增商品</Button>
 				</Link>
 			</div>
-			<FilterTable columns={columns} data={product_types} />
+			<FilterTable
+				columns={columns}
+				data={product_types}
+				expandedRowRender={(record: Row) => {
+					return (
+						<FilterTable
+							data={record.products.map((p) => {
+								const tmp: Record<ProductStatus, string> = {
+									[ProductStatus.MANUFACTURING]: '已生产',
+									[ProductStatus.DISTRIBUTING]: '运输中',
+									[ProductStatus.FOR_SALE]: '销售中',
+									[ProductStatus.SOLD]: '已销售',
+								};
+								return {
+									...p,
+									status: tmp[p.status],
+								};
+							})}
+							columns={[
+								{
+									title: '商品序列号',
+									dataIndex: 'serialNumber',
+									key: 'serialNumber',
+								},
+								{
+									title: '生产日期',
+									dataIndex: 'manufactureDate',
+									key: 'manufactureDate',
+								},
+								{
+									title: '登记日期',
+									dataIndex: 'createdAt',
+									key: 'createdAt',
+								},
+								{
+									title: '状态',
+									dataIndex: 'status',
+									key: 'status',
+								},
+							]}
+						>
+							<Button variant="solid" color="blue">
+								数据上链
+							</Button>
+						</FilterTable>
+					);
+				}}
+			>
+				<Button type="primary">添加记录</Button>
+			</FilterTable>
 		</>
 	);
 };

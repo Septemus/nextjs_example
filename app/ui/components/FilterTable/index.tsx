@@ -1,19 +1,24 @@
 'use client';
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, ReactNode } from 'react';
 import { Table, Button, Popconfirm, Input, Space } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
 import Highlighter from 'react-highlight-words';
 import type { InputRef, TableColumnType } from 'antd';
 import type { FilterDropdownProps } from 'antd/es/table/interface';
-interface DataType {
-	id: string | number;
-	[key: string]: any;
-}
-function FilterTable<DataIndex extends string>({
+
+function FilterTable<
+	DataIndex extends string,
+	DataType extends {
+		id: string | number;
+		[key: string]: any;
+	},
+>({
 	data,
 	columns,
+	expandedRowRender,
 	propHandleDelete,
+	children,
 }: {
 	data: DataType[];
 	columns: {
@@ -22,7 +27,9 @@ function FilterTable<DataIndex extends string>({
 		key: string;
 		ellipsis?: boolean;
 	}[];
+	expandedRowRender?: (record: DataType) => React.ReactNode;
 	propHandleDelete?: (id: string | number) => void;
+	children?: ReactNode;
 }) {
 	const [dataSource, setDataSource] = useState(data);
 	const [searchText, setSearchText] = useState('');
@@ -181,9 +188,10 @@ function FilterTable<DataIndex extends string>({
 							删除
 						</Button>
 					</Popconfirm>
-					<Button variant="solid" color="green">
+					<Button variant="solid" color="green" className="mr-2">
 						修改
 					</Button>
+					{children}
 				</>
 			),
 		},
@@ -195,6 +203,12 @@ function FilterTable<DataIndex extends string>({
 				columns={tabColumns}
 				dataSource={dataSource}
 				rowKey="id"
+				expandable={{
+					expandedRowRender,
+					rowExpandable: () => {
+						return expandedRowRender ? true : false;
+					},
+				}}
 				bordered
 			/>
 		</>
