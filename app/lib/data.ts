@@ -267,3 +267,14 @@ export async function fetchProductTypeById(id: number) {
 		},
 	});
 }
+
+export async function fetchProductById(id: number) {
+	return await prisma.products.findUnique({
+		where: {
+			id,
+		},
+		include: {
+			type: true,
+		},
+	});
+}
