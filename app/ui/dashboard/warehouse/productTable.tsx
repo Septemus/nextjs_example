@@ -1,16 +1,12 @@
 'use client';
-
-import React, { useState, useRef, useEffect } from 'react';
-import { Table, Button, Popconfirm, message, Input, Space } from 'antd';
-import { SearchOutlined } from '@ant-design/icons';
-import Highlighter from 'react-highlight-words';
-import type { InputRef, TableColumnType } from 'antd';
-import type { FilterDropdownProps } from 'antd/es/table/interface';
+import FilterTable from '@/app/ui/components/FilterTable';
+import React from 'react';
+import { Button, message } from 'antd';
 import Link from 'next/link';
-import { useWriteContract } from 'wagmi';
-import { abi, contractAddress } from '@/contracts/index';
+// import { useWriteContract } from 'wagmi';
+// import { abi, contractAddress } from '@/contracts/index';
 import { product_types, products } from '@/generated/prisma';
-import { fetchCompanyById, fetchUserById } from '@/app/lib/data';
+// import { fetchCompanyById, fetchUserById } from '@/app/lib/data';
 
 interface ProductTableProps {
 	product_types: (product_types & { products: products[] })[];
@@ -25,11 +21,9 @@ interface ProductTableProps {
 // 	companyId: number;
 // 	companyName: string;
 // };
-type DataIndex = keyof product_types;
 
 const ProductTable: React.FC<ProductTableProps> = ({ product_types }) => {
 	const [messageApi, contextHolder] = message.useMessage();
-	const [dataSource, setDataSource] = useState(product_types);
 	// const { writeContractAsync, isPending } = useWriteContract();
 	// const handleUploadToBlockchain = async (record: products) => {
 	// 	async function computeProductInput(p: products): Promise<ProductInput> {
@@ -67,189 +61,17 @@ const ProductTable: React.FC<ProductTableProps> = ({ product_types }) => {
 	// 	}
 	// };
 
-	const [searchText, setSearchText] = useState('');
-	const [searchedColumn, setSearchedColumn] = useState('');
-	const searchInput = useRef<InputRef>(null);
-
-	const handleDelete = (id: number) => {
-		setDataSource(dataSource.filter((item) => item.id !== id));
-		messageApi.success('删除成功');
-		// ❗这里实际项目还应该调用API去删除数据库里的数据
-	};
-
-	const handleSearch = (
-		selectedKeys: string[],
-		confirm: FilterDropdownProps['confirm'],
-		dataIndex: DataIndex,
-	) => {
-		confirm();
-		setSearchText(selectedKeys[0]);
-		setSearchedColumn(dataIndex);
-	};
-
-	const handleReset = (clearFilters: () => void) => {
-		clearFilters();
-		setSearchText('');
-	};
-
-	const getColumnSearchProps = (
-		dataIndex: DataIndex,
-	): TableColumnType<product_types> => ({
-		filterDropdown: ({
-			setSelectedKeys,
-			selectedKeys,
-			confirm,
-			clearFilters,
-			close,
-		}) => (
-			<div style={{ padding: 8 }} onKeyDown={(e) => e.stopPropagation()}>
-				<Input
-					ref={searchInput}
-					placeholder={`搜索 ${dataIndex}`}
-					value={selectedKeys[0]}
-					onChange={(e) =>
-						setSelectedKeys(e.target.value ? [e.target.value] : [])
-					}
-					onPressEnter={() =>
-						handleSearch(
-							selectedKeys as string[],
-							confirm,
-							dataIndex,
-						)
-					}
-					style={{ marginBottom: 8, display: 'block' }}
-				/>
-				<Space>
-					<Button
-						type="primary"
-						onClick={() =>
-							handleSearch(
-								selectedKeys as string[],
-								confirm,
-								dataIndex,
-							)
-						}
-						icon={<SearchOutlined />}
-						size="small"
-						style={{ width: 90 }}
-					>
-						搜索
-					</Button>
-					<Button
-						onClick={() =>
-							clearFilters && handleReset(clearFilters)
-						}
-						size="small"
-						style={{ width: 90 }}
-					>
-						重置
-					</Button>
-					<Button
-						type="link"
-						size="small"
-						onClick={() => {
-							confirm({ closeDropdown: false });
-							setSearchText((selectedKeys as string[])[0]);
-							setSearchedColumn(dataIndex);
-						}}
-					>
-						筛选
-					</Button>
-					<Button
-						type="link"
-						size="small"
-						onClick={() => {
-							close();
-						}}
-					>
-						关闭
-					</Button>
-				</Space>
-			</div>
-		),
-		filterIcon: (filtered: boolean) => (
-			<SearchOutlined
-				style={{ color: filtered ? '#1677ff' : undefined }}
-			/>
-		),
-		onFilter: (value, record) => {
-			return (
-				record[dataIndex]
-					?.toString()
-					.toLowerCase()
-					.includes((value as string).toLowerCase()) ?? false
-			);
-		},
-
-		filterDropdownProps: {
-			onOpenChange(open) {
-				if (open) {
-					setTimeout(() => searchInput.current?.select(), 100);
-				}
-			},
-		},
-		render: (text) =>
-			searchedColumn === dataIndex ? (
-				<>
-					<Highlighter
-						highlightStyle={{
-							backgroundColor: '#ffc069',
-							padding: 0,
-						}}
-						searchWords={[searchText]}
-						autoEscape
-						textToHighlight={text ? text.toString() : ''}
-					></Highlighter>
-				</>
-			) : (
-				text
-			),
-	});
-
 	const columns = [
 		{
 			title: '商品名称',
 			dataIndex: 'name',
 			key: 'name',
-			...getColumnSearchProps('name'),
 		},
 		{
 			title: '描述',
 			dataIndex: 'description',
 			key: 'description',
 			ellipsis: true,
-			...getColumnSearchProps('description'),
-		},
-		{
-			title: '操作',
-			key: 'action',
-			render: (_: any, record: product_types) => (
-				<>
-					<Popconfirm
-						title="确定要删除吗？"
-						onConfirm={() => handleDelete(record.id)}
-						okText="是"
-						cancelText="否"
-					>
-						<Button variant="solid" color="danger" className="mr-2">
-							删除
-						</Button>
-					</Popconfirm>
-					{/* <Button
-						variant="solid"
-						color="blue"
-						loading={isPending}
-						onClick={() => {
-							handleUploadToBlockchain(record);
-						}}
-					>
-						商品上链
-					</Button> */}
-					<Button variant="solid" color="primary">
-						新增商品记录
-					</Button>
-				</>
-			),
 		},
 	];
 
@@ -261,12 +83,7 @@ const ProductTable: React.FC<ProductTableProps> = ({ product_types }) => {
 					<Button type="primary">新增商品</Button>
 				</Link>
 			</div>
-			<Table
-				columns={columns}
-				dataSource={dataSource}
-				rowKey="id"
-				bordered
-			/>
+			<FilterTable columns={columns} data={product_types} />
 		</>
 	);
 };
