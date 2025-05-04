@@ -32,11 +32,11 @@ const CreateProductPage = () => {
 			// 提交交给 form 的 action，不在这里处理
 			try {
 				await createProductType(formik.values as any);
-				messageApi.open({
+				await messageApi.open({
 					type: 'success',
 					content: '添加商品成功',
 				});
-				router.back();
+				router.replace('/dashboard/warehouse');
 			} catch (err) {
 				console.error(err);
 				messageApi.open({
