@@ -9,63 +9,63 @@ import type { FilterDropdownProps } from 'antd/es/table/interface';
 import Link from 'next/link';
 import { useWriteContract } from 'wagmi';
 import { abi, contractAddress } from '@/contracts/index';
-import { products } from '@/generated/prisma';
+import { product_types, products } from '@/generated/prisma';
 import { fetchCompanyById, fetchUserById } from '@/app/lib/data';
 
 interface ProductTableProps {
-	products: products[];
+	product_types: (product_types & { products: products[] })[];
 }
-type ProductInput = {
-	name: string;
-	description: string;
-	serialNumber: string;
-	creatorEmail: string;
-	manufactureDate: number;
-	createdAt: number;
-	companyId: number;
-	companyName: string;
-};
-type DataIndex = keyof products;
+// type ProductInput = {
+// 	name: string;
+// 	description: string;
+// 	serialNumber: string;
+// 	creatorEmail: string;
+// 	manufactureDate: number;
+// 	createdAt: number;
+// 	companyId: number;
+// 	companyName: string;
+// };
+type DataIndex = keyof product_types;
 
-const ProductTable: React.FC<ProductTableProps> = ({ products }) => {
+const ProductTable: React.FC<ProductTableProps> = ({ product_types }) => {
 	const [messageApi, contextHolder] = message.useMessage();
-	const [dataSource, setDataSource] = useState(products);
-	const { writeContractAsync, isPending } = useWriteContract();
-	const handleUploadToBlockchain = async (record: products) => {
-		async function computeProductInput(p: products): Promise<ProductInput> {
-			return {
-				name: p.name,
-				description: p.description || '',
-				serialNumber: p.serialNumber,
-				creatorEmail: (await fetchUserById(p.creatorId))?.email!,
-				manufactureDate: p.manufactureDate.getTime(),
-				createdAt: p.createdAt.getTime(),
-				companyId: p.companyId,
-				companyName: (await fetchCompanyById(p.companyId))?.name!,
-			};
-		}
-		try {
-			// 构造上链参数（注意字段顺序一定和Solidity里结构体一一对应）
-			messageApi.loading('商品上链中');
-			await new Promise((res) => {
-				setTimeout(res, 1500);
-			});
-			const productInput = await computeProductInput(record);
-			console.log('productInput:', Object.values(productInput));
-			// 发交易
-			const tx = await writeContractAsync({
-				address: contractAddress.ProductRegistry as `0x${string}`,
-				abi: abi.ProductRegistry.abi,
-				functionName: 'registerProduct',
-				args: Object.values(productInput),
-			});
-			messageApi.success('商品上链交易发送成功！');
-			console.log('交易哈希:', tx);
-		} catch (error: any) {
-			console.error(error);
-			messageApi.error(error.shortMessage || '上链失败');
-		}
-	};
+	const [dataSource, setDataSource] = useState(product_types);
+	// const { writeContractAsync, isPending } = useWriteContract();
+	// const handleUploadToBlockchain = async (record: products) => {
+	// 	async function computeProductInput(p: products): Promise<ProductInput> {
+	// 		return {
+	// 			name: p.name,
+	// 			description: p.description || '',
+	// 			serialNumber: p.serialNumber,
+	// 			creatorEmail: (await fetchUserById(p.creatorId))?.email!,
+	// 			manufactureDate: p.manufactureDate.getTime(),
+	// 			createdAt: p.createdAt.getTime(),
+	// 			companyId: p.companyId,
+	// 			companyName: (await fetchCompanyById(p.companyId))?.name!,
+	// 		};
+	// 	}
+	// 	try {
+	// 		// 构造上链参数（注意字段顺序一定和Solidity里结构体一一对应）
+	// 		messageApi.loading('商品上链中');
+	// 		await new Promise((res) => {
+	// 			setTimeout(res, 1500);
+	// 		});
+	// 		const productInput = await computeProductInput(record);
+	// 		console.log('productInput:', Object.values(productInput));
+	// 		// 发交易
+	// 		const tx = await writeContractAsync({
+	// 			address: contractAddress.ProductRegistry as `0x${string}`,
+	// 			abi: abi.ProductRegistry.abi,
+	// 			functionName: 'registerProduct',
+	// 			args: Object.values(productInput),
+	// 		});
+	// 		messageApi.success('商品上链交易发送成功！');
+	// 		console.log('交易哈希:', tx);
+	// 	} catch (error: any) {
+	// 		console.error(error);
+	// 		messageApi.error(error.shortMessage || '上链失败');
+	// 	}
+	// };
 
 	const [searchText, setSearchText] = useState('');
 	const [searchedColumn, setSearchedColumn] = useState('');
@@ -94,7 +94,7 @@ const ProductTable: React.FC<ProductTableProps> = ({ products }) => {
 
 	const getColumnSearchProps = (
 		dataIndex: DataIndex,
-	): TableColumnType<products> => ({
+	): TableColumnType<product_types> => ({
 		filterDropdown: ({
 			setSelectedKeys,
 			selectedKeys,
@@ -221,15 +221,9 @@ const ProductTable: React.FC<ProductTableProps> = ({ products }) => {
 			...getColumnSearchProps('description'),
 		},
 		{
-			title: '序列号',
-			dataIndex: 'serialNumber',
-			key: 'serialNumber',
-			...getColumnSearchProps('serialNumber'),
-		},
-		{
 			title: '操作',
 			key: 'action',
-			render: (_: any, record: products) => (
+			render: (_: any, record: product_types) => (
 				<>
 					<Popconfirm
 						title="确定要删除吗？"
@@ -241,7 +235,7 @@ const ProductTable: React.FC<ProductTableProps> = ({ products }) => {
 							删除
 						</Button>
 					</Popconfirm>
-					<Button
+					{/* <Button
 						variant="solid"
 						color="blue"
 						loading={isPending}
@@ -250,6 +244,9 @@ const ProductTable: React.FC<ProductTableProps> = ({ products }) => {
 						}}
 					>
 						商品上链
+					</Button> */}
+					<Button variant="solid" color="primary">
+						新增商品记录
 					</Button>
 				</>
 			),

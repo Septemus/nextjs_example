@@ -213,18 +213,27 @@ export async function registerCustomer(regForm: {
 		redirectTo: regForm.redirectTo,
 	});
 }
-export async function createProduct(p: {
+// export async function createProduct(p: {
+// 	name: string;
+// 	description: string;
+// 	manufactureDate: Date;
+// 	createdAt: Date;
+// 	serialNumber: string;
+// 	currentOwnerId: string;
+// 	creatorId: string;
+// 	status: ProductStatus;
+// 	companyId: number;
+// }) {
+// 	await prisma.products.create({
+// 		data: p,
+// 	});
+// }
+export async function createProductType(p: {
 	name: string;
 	description: string;
-	manufactureDate: Date;
-	createdAt: Date;
-	serialNumber: string;
-	currentOwnerId: string;
-	creatorId: string;
-	status: ProductStatus;
 	companyId: number;
 }) {
-	await prisma.products.create({
+	await prisma.product_types.create({
 		data: p,
 	});
 }

@@ -1,15 +1,13 @@
 'use client';
 
-import { createProduct } from '@/app/lib/actions';
+import { createProductType } from '@/app/lib/actions';
 import {
 	fetchCompanies,
 	fetchCompanyOfUser,
-	fetchUsers,
 	fetchUserByEmail,
 } from '@/app/lib/data';
-import { companies, ProductStatus, users } from '@/generated/prisma';
-import { Button, DatePicker, Input, Select, message } from 'antd';
-import dayjs from 'dayjs';
+import { companies } from '@/generated/prisma';
+import { Button, Input, Select, message } from 'antd';
 import { useFormik } from 'formik';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
@@ -20,29 +18,20 @@ const CreateProductPage = () => {
 	const [messageApi, contextHolder] = message.useMessage();
 	const session = useSession();
 	const router = useRouter();
-	const [currentTime, setCurrentTime] = useState(dayjs());
 	const formik = useFormik({
 		initialValues: {
 			name: '',
 			description: '',
-			manufactureDate: null as Date | null,
-			createdAt: currentTime.toDate(),
-			serialNumber: '',
-			currentOwnerId: '',
-			creatorId: '',
-			status: ProductStatus.MANUFACTURING,
 			companyId: null as number | null,
 		},
 		validationSchema: Yup.object({
 			name: Yup.string().required('商品名称不能为空'),
-			serialNumber: Yup.string().required('序列号不能为空'),
 			description: Yup.string(),
-			manufactureDate: Yup.date().required('生产日期不能为空'),
 		}),
 		onSubmit: async () => {
 			// 提交交给 form 的 action，不在这里处理
 			try {
-				await createProduct(formik.values as any);
+				await createProductType(formik.values as any);
 				messageApi.open({
 					type: 'success',
 					content: '添加商品成功',
@@ -59,23 +48,12 @@ const CreateProductPage = () => {
 	});
 
 	const [companies, setCompanies] = useState<null | companies[]>(null);
-	const [users, setUsers] = useState<users[] | null>(null);
 	useEffect(() => {
-		setInterval(() => {
-			setCurrentTime(dayjs());
-		}, 1000);
 		fetchCompanies().then((res) => {
 			setCompanies(res);
 		});
-		fetchUsers().then((res) => {
-			setUsers(res);
-		});
 		const email = session.data?.user?.email;
 		if (email) {
-			fetchUserByEmail(email).then((res) => {
-				formik.setFieldValue('currentOwnerId', res?.id);
-				formik.setFieldValue('creatorId', res?.id);
-			});
 			fetchCompanyOfUser(email).then((res) => {
 				console.log(session.data?.user);
 				formik.setFieldValue('companyId', res?.id);
@@ -86,7 +64,6 @@ const CreateProductPage = () => {
 		<div className="p-8">
 			{contextHolder}
 			<h1 className="text-2xl font-bold mb-6">新增商品</h1>
-
 			<form
 				onSubmit={formik.handleSubmit} // 表单提交目标
 				className="max-w-xl space-y-4"
@@ -119,79 +96,8 @@ const CreateProductPage = () => {
 					/>
 				</div>
 
-				<div>
-					<label className="block mb-2 font-medium">序列号</label>
-					<Input
-						name="serialNumber"
-						value={formik.values.serialNumber}
-						onChange={formik.handleChange}
-						onBlur={formik.handleBlur}
-						placeholder="请输入序列号"
-					/>
-					{formik.touched.serialNumber &&
-					formik.errors.serialNumber ? (
-						<div className="text-red-500 text-sm mt-1">
-							{formik.errors.serialNumber}
-						</div>
-					) : null}
-				</div>
-				<div>
-					<label className="block mb-2 font-medium">制造日期</label>
-					<DatePicker
-						className="w-full"
-						name="manufactureDate"
-						placeholder="选择商品制造日期"
-						showTime
-						value={
-							formik.values.manufactureDate
-								? dayjs(formik.values.manufactureDate)
-								: null
-						}
-						onChange={(date) => {
-							formik.setFieldValue(
-								'manufactureDate',
-								date.toDate(),
-							);
-						}}
-					/>
-					{formik.touched.manufactureDate &&
-						formik.errors.manufactureDate && (
-							<div className="text-red-500 text-sm mt-1">
-								{formik.errors.manufactureDate}
-							</div>
-						)}
-				</div>
 				{/* 👇 不可编辑但展示 */}
 
-				<div>
-					<label className="block mb-2 font-medium">
-						商品登记日期
-					</label>
-					<DatePicker
-						className="w-full"
-						name="createdAt"
-						placeholder="商品登记日期（当前）"
-						showTime
-						disabled
-						value={currentTime}
-						onChange={(date) => {
-							formik.setFieldValue('createdAt', date.toDate());
-						}}
-					/>
-				</div>
-				<div>
-					<label className="block mb-2 font-medium">
-						商品登记负责人
-					</label>
-					<Select
-						className="w-full"
-						disabled
-						options={users?.map((v) => {
-							return { value: v.id, label: v.name };
-						})}
-						value={formik.values.creatorId}
-					/>
-				</div>
 				<div>
 					<label className="block mb-2 font-medium">制造公司</label>
 					<Select

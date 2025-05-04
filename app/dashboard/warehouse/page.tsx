@@ -16,9 +16,12 @@ export default async function Page() {
 		where: { email: session.user.email },
 		select: { foundedCompany: true, companiesId: true },
 	});
-	const products = await prisma.products.findMany({
+	const product_types = await prisma.product_types.findMany({
 		where: {
 			companyId: user?.foundedCompany[0].id || user?.companiesId!,
+		},
+		include: {
+			products: true,
 		},
 	}); // 从数据库取商品列表
 	return (
@@ -28,7 +31,7 @@ export default async function Page() {
 			</div>
 			{/* 将 products 传给前端组件 */}
 			<Suspense>
-				<ProductTable products={products} />
+				<ProductTable product_types={product_types} />
 			</Suspense>
 		</div>
 	);

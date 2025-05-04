@@ -57,7 +57,7 @@ model companies {
   createdAt          DateTime @default(now())
   employees          users[]  @relation("employment")
   founder            users    @relation(fields: [founderId], references: [id], onUpdate: Cascade, name: "found")
-  products           products[] @relation("company_products") // 🔥加这行
+  product_types           product_types[] @relation("company_product_types") // 🔥加这行
 
 }
 
@@ -68,22 +68,31 @@ enum ProductStatus {
   SOLD
 }
 
+model product_types {
+  id            Int           @id @default(autoincrement())
+  name          String        // 商品名称
+  description   String?       // 商品描述
+  coverUrl      String?       // 商品图片链接
+
+  companyId     Int
+  manufacturerCompany companies @relation("company_product_types", fields: [companyId], references: [id], onUpdate: Cascade)
+
+  products      products[]    @relation("type_to_products")
+}
+
 model products {
-  id                Int          @id @default(autoincrement())
-  name              String       // 商品名称
-  description       String?      // 商品描述（可选）
-  coverUrl          String?      // 商品图片链接（可选）
-  serialNumber      String       @unique // 商品序列号（每件商品唯一）
-  blockchainHash    String?       @unique // 区块链记录的哈希
-  manufactureDate   DateTime     // 制造日期
-  companyId         Int          // 制造公司 ID
-  creatorId         String        @db.Uuid // 录入商品的生产商用户 ID
+  id                Int           @id @default(autoincrement())
+  serialNumber      String        @unique
+  manufactureDate   DateTime
+  createdAt         DateTime      @default(now())
 
-  currentOwnerId    String       @db.Uuid // 当前持有者用户 ID
-  status            ProductStatus @default(MANUFACTURING) // 当前商品状态
-  createdAt         DateTime     @default(now()) //商品登记的日期，和制造日期不一样
+  typeId            Int
+  type              product_types @relation("type_to_products", fields: [typeId], references: [id], onUpdate: Cascade)
 
-  manufacturerCompany      companies    @relation("company_products",fields: [companyId], references: [id], onUpdate: Cascade)
+  creatorId         String        @db.Uuid
+  currentOwnerId    String        @db.Uuid
+  status            ProductStatus @default(MANUFACTURING)
+
   creator           users         @relation("created_products", fields: [creatorId], references: [id], onUpdate: Cascade)
-  currentOwner      users        @relation("owned_products",fields: [currentOwnerId], references: [id], onUpdate: Cascade)
+  currentOwner      users         @relation("owned_products", fields: [currentOwnerId], references: [id], onUpdate: Cascade)
 }
