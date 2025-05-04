@@ -267,6 +267,14 @@ export async function fetchProductTypeById(id: number) {
 		},
 	});
 }
+export async function fetchProductTypes() {
+	return await prisma.product_types.findMany({
+		include: {
+			products: true,
+			manufacturerCompany: true,
+		},
+	});
+}
 
 export async function fetchProductById(id: number) {
 	return await prisma.products.findUnique({

@@ -18,7 +18,7 @@ export default async function Page() {
 	});
 	const product_types = await prisma.product_types.findMany({
 		where: {
-			companyId: user?.foundedCompany[0].id || user?.companiesId!,
+			companyId: user?.companiesId || user?.foundedCompany[0].id!,
 		},
 		include: {
 			products: true,
