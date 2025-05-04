@@ -63,7 +63,7 @@ const CreateProductPage = () => {
 	return (
 		<div className="p-8">
 			{contextHolder}
-			<h1 className="text-2xl font-bold mb-6">新增商品</h1>
+			<h1 className="text-2xl font-bold mb-6">新增商品种类</h1>
 			<form
 				onSubmit={formik.handleSubmit} // 表单提交目标
 				className="max-w-xl space-y-4"

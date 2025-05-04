@@ -99,6 +99,9 @@ const ProductTable: React.FC<ProductTableProps> = ({ product_types }) => {
 								return {
 									...p,
 									status: tmp[p.status],
+									manufactureDate:
+										p.manufactureDate.toISOString(),
+									createdAt: p.createdAt.toISOString(),
 								};
 							})}
 							columns={[
@@ -124,14 +127,24 @@ const ProductTable: React.FC<ProductTableProps> = ({ product_types }) => {
 								},
 							]}
 						>
-							<Button variant="solid" color="blue">
-								数据上链
-							</Button>
+							{(id) => {
+								return (
+									<Button variant="solid" color="blue">
+										数据上链
+									</Button>
+								);
+							}}
 						</FilterTable>
 					);
 				}}
 			>
-				<Button type="primary">添加记录</Button>
+				{(id: number | string) => {
+					return (
+						<Link href={`/dashboard/product/create/${id}`}>
+							<Button type="primary">添加记录</Button>
+						</Link>
+					);
+				}}
 			</FilterTable>
 		</>
 	);

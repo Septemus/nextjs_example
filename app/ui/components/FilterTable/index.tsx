@@ -29,7 +29,7 @@ function FilterTable<
 	}[];
 	expandedRowRender?: (record: DataType) => React.ReactNode;
 	propHandleDelete?: (id: string | number) => void;
-	children?: ReactNode;
+	children?: (id: number | string) => ReactNode;
 }) {
 	const [dataSource, setDataSource] = useState(data);
 	const [searchText, setSearchText] = useState('');
@@ -191,7 +191,7 @@ function FilterTable<
 					<Button variant="solid" color="green" className="mr-2">
 						修改
 					</Button>
-					{children}
+					{children!(record.id)}
 				</>
 			),
 		},

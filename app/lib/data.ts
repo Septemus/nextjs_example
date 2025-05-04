@@ -259,3 +259,11 @@ export async function fetchUserById(id: string) {
 		},
 	});
 }
+
+export async function fetchProductTypeById(id: number) {
+	return await prisma.product_types.findUnique({
+		where: {
+			id,
+		},
+	});
+}
