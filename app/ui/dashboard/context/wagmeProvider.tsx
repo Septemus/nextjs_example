@@ -1,9 +1,15 @@
 'use client';
 
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { QueryClient } from '@tanstack/react-query';
 import { type ReactNode, useState } from 'react';
-import { type State, WagmiProvider } from 'wagmi';
-
+import { type State } from 'wagmi';
+import {
+	WagmiWeb3ConfigProvider,
+	MetaMask,
+	OkxWallet,
+	Mainnet,
+	Sepolia,
+} from '@ant-design/web3-wagmi';
 import { getConfig } from '@/wagme-config';
 
 type Props = {
@@ -16,10 +22,18 @@ export function SSRWagmiProvider({ children, initialState }: Props) {
 	const [queryClient] = useState(() => new QueryClient());
 
 	return (
-		<WagmiProvider config={config} initialState={initialState}>
-			<QueryClientProvider client={queryClient}>
-				{children}
-			</QueryClientProvider>
-		</WagmiProvider>
+		<WagmiWeb3ConfigProvider
+			config={config}
+			chains={[Mainnet, Sepolia]}
+			initialState={initialState}
+			ens
+			eip6963={{
+				autoAddInjectedWallets: true,
+			}}
+			wallets={[MetaMask(), OkxWallet()]}
+			queryClient={queryClient}
+		>
+			{children}
+		</WagmiWeb3ConfigProvider>
 	);
 }
