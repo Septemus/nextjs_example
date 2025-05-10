@@ -11,6 +11,9 @@ import {
 	ProductStatus,
 	users,
 } from '@/generated/prisma';
+import { CryptoInput, CryptoPrice } from '@ant-design/web3';
+import { USDT } from '@ant-design/web3-assets/tokens';
+import { UsdtCircleColorful, USDTCircleFilled } from '@ant-design/web3-icons';
 import { Button, DatePicker, Input, Select, message } from 'antd';
 import dayjs from 'dayjs';
 import { useFormik } from 'formik';
@@ -42,6 +45,7 @@ export default function CreateProductForm({
 			status: ProductStatus.MANUFACTURING,
 			currentOwnerId: '',
 			creatorId: '',
+			price: product_type.price as null | number | bigint,
 		},
 		validationSchema: Yup.object({
 			serialNumber: Yup.string().required('序列号不能为空'),
@@ -111,6 +115,16 @@ export default function CreateProductForm({
 							return { value: v.id, label: v.name };
 						})}
 						value={product_type.companyId}
+					/>
+				</div>
+
+				<div>
+					<label className="block mb-2 font-medium">设置价格</label>
+					<CryptoPrice
+						icon={<UsdtCircleColorful />}
+						value={BigInt(product_type.price) * BigInt(1e6)}
+						decimals={6}
+						symbol="USDT"
 					/>
 				</div>
 

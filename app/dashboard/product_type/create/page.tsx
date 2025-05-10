@@ -121,6 +121,7 @@ const CreateProductPage = () => {
 				<div>
 					<label className="block mb-2 font-medium">设置价格</label>
 					<CryptoInput
+						disabled
 						value={{
 							token: USDT,
 						}}
