@@ -30,11 +30,14 @@ export default async function PurchasePage() {
 						<p className="text-gray-600 text-sm mb-1">
 							生产商：{product.manufacturerCompany.name}
 						</p>
-						{product.description && (
+						<p className="text-sm">
+							库存数量：{product.products.length}
+						</p>
+						{/* {product.description && (
 							<p className="text-sm mb-2">
 								{product.description}
 							</p>
-						)}
+						)} */}
 						<div className="pb-14"></div>
 						<div className="absolute bottom-4 left-0 w-full px-4 flex flex-col-reverse lg:justify-between lg:flex-row">
 							<Button type="primary" className="max-w-24">
