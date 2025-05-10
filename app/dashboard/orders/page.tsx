@@ -1,7 +1,7 @@
 import { Metadata } from 'next';
 import prisma from '@/app/lib/prisma';
 import { Suspense } from 'react';
-import ProductTable from '@/app/ui/dashboard/warehouse/productTable';
+import OrderTable from '@/app/ui/dashboard/orders/OrderTable';
 import { Skeleton } from 'antd';
 import { auth } from '@/auth';
 export const metadata: Metadata = {
@@ -17,22 +17,24 @@ export default async function Page() {
 		where: { email: session.user.email },
 		select: { foundedCompany: true, companiesId: true },
 	});
-	const product_types = await prisma.product_types.findMany({
+	const orders = await prisma.orders.findMany({
 		where: {
-			companyId: user?.companiesId || user?.foundedCompany[0].id!,
+			productType: {
+				companyId: user?.companiesId || user?.foundedCompany[0].id!,
+			},
 		},
 		include: {
-			products: true,
+			productType: true,
 		},
 	}); // 从数据库取商品列表
 	return (
 		<div className="w-full">
 			<div className="flex justify-between items-center mb-6">
-				<h1 className="text-2xl font-bold">商品管理</h1>
+				<h1 className="text-2xl font-bold">订单管理</h1>
 			</div>
 			{/* 将 products 传给前端组件 */}
 			<Suspense fallback={<Skeleton />}>
-				<ProductTable product_types={product_types} />
+				<OrderTable orders={orders} />
 			</Suspense>
 		</div>
 	);

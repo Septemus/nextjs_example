@@ -12,6 +12,7 @@ import {
 	fetchUserById,
 } from '@/app/lib/data';
 import { UsdtCircleColorful } from '@ant-design/web3-icons';
+import ClientCryptoPrice from '../../components/ClientCryptoPrice';
 type Row = product_types & { products: products[] };
 interface ProductTableProps {
 	product_types: Row[];
@@ -95,8 +96,12 @@ const ProductTable: React.FC<ProductTableProps> = ({ product_types }) => {
 			render: (price: number) => {
 				return (
 					<div>
-						{price} USDT
-						<UsdtCircleColorful className="float-end" />
+						<ClientCryptoPrice
+							icon={<UsdtCircleColorful />}
+							value={BigInt(price) * BigInt(1e6)}
+							decimals={6}
+							symbol="USDT"
+						/>
 					</div>
 				);
 			},

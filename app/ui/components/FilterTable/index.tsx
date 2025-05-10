@@ -197,7 +197,7 @@ function FilterTable<
 					<Button variant="solid" color="green" className="mr-2">
 						修改
 					</Button>
-					{children!(record.id)}
+					{children ? children(record.id) : null}
 				</>
 			),
 		},

@@ -11,7 +11,7 @@ import { usePathname } from 'next/navigation';
 import clsx from 'clsx';
 import { fetchUserByEmail } from '@/app/lib/data';
 import { useSession } from 'next-auth/react';
-import { useEffect, useState } from 'react';
+import { ReactElement, useEffect, useState } from 'react';
 import { Role } from '@/generated/prisma';
 // Map of links to display in the side navigation.
 // Depending on the size of the application, this would be stored in a database.
@@ -24,7 +24,7 @@ const manufacturerLinks = [
 	},
 	{
 		name: '订单管理',
-		href: '/dashboard/invoices',
+		href: '/dashboard/orders',
 		icon: DocumentDuplicateIcon,
 	},
 	{ name: '客户管理', href: '/dashboard/customers', icon: UserGroupIcon },
@@ -51,7 +51,13 @@ const distributorLinks = [
 
 export default function NavLinks() {
 	const session = useSession();
-	const [links, setLinks] = useState(manufacturerLinks);
+	const [links, setLinks] = useState<
+		{
+			href: string;
+			name: string;
+			icon: any;
+		}[]
+	>([]);
 	const pathname = usePathname();
 	useEffect(() => {
 		if (session.data?.user?.email) {
@@ -59,6 +65,10 @@ export default function NavLinks() {
 				switch (res?.role) {
 					case Role.DISTRIBUTOR: {
 						setLinks(distributorLinks);
+						break;
+					}
+					case Role.MANUFACTURER: {
+						setLinks(manufacturerLinks);
 						break;
 					}
 					default: {
