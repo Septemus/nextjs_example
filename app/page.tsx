@@ -35,7 +35,7 @@ export default function Page() {
 					<p
 						className={`${lusitana.className} text-xl text-gray-800 md:text-3xl md:leading-normal`}
 					>
-						本平台使用以太币（ETH）作为支付工具
+						本平台使用泰达币（USDT）作为支付工具
 					</p>
 					<Link
 						href="/login"
