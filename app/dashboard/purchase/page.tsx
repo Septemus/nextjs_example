@@ -4,6 +4,7 @@ import { fetchProductTypes } from '@/app/lib/data';
 import { Button } from 'antd';
 import { UsdtCircleColorful } from '@/app/ui/components/ClientIcons/index';
 import ClientCryptoPrice from '@/app/ui/components/ClientCryptoPrice/index';
+import Link from 'next/link';
 export default async function PurchasePage() {
 	const productTypes = await fetchProductTypes();
 
@@ -40,9 +41,11 @@ export default async function PurchasePage() {
 						)} */}
 						<div className="pb-14"></div>
 						<div className="absolute bottom-4 left-0 w-full px-4 flex flex-col-reverse lg:justify-between lg:flex-row">
-							<Button type="primary" className="max-w-24">
-								采购
-							</Button>
+							<Link href={`/dashboard/purchase/${product.id}`}>
+								<Button type="primary" className="max-w-24">
+									详情
+								</Button>
+							</Link>
 							<ClientCryptoPrice
 								icon={<UsdtCircleColorful />}
 								value={BigInt(product.price) * BigInt(1e6)}

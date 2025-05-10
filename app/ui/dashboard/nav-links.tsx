@@ -80,7 +80,10 @@ export default function NavLinks() {
 							'flex h-[48px] grow items-center justify-center gap-2 rounded-md bg-gray-50 p-3 text-sm font-medium hover:bg-orange-50 hover:text-orange-600 md:flex-none md:justify-start md:p-2 md:px-3',
 							{
 								'bg-orange-50 text-orange-600':
-									pathname === link.href,
+									pathname === '/dashboard'
+										? pathname === link.href
+										: pathname.startsWith(link.href) &&
+											link.href !== '/dashboard',
 							},
 						)}
 					>

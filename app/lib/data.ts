@@ -265,6 +265,10 @@ export async function fetchProductTypeById(id: number) {
 		where: {
 			id,
 		},
+		include: {
+			manufacturerCompany: true,
+			products: true,
+		},
 	});
 }
 export async function fetchProductTypes() {
