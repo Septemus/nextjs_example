@@ -25,6 +25,7 @@ type ProductInput = {
 	createdAt: number;
 	companyId: number;
 	companyName: string;
+	price: number;
 };
 
 const ProductTable: React.FC<ProductTableProps> = ({ product_types }) => {
@@ -49,6 +50,7 @@ const ProductTable: React.FC<ProductTableProps> = ({ product_types }) => {
 					companyId: p.type.companyId,
 					companyName: (await fetchCompanyById(p.type.companyId))
 						?.name!,
+					price: Number(p.type.price),
 				};
 			} else {
 				return null;
