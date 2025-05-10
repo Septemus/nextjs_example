@@ -5,6 +5,7 @@ import { Button } from 'antd';
 import { UsdtCircleColorful } from '@/app/ui/components/ClientIcons/index';
 import ClientCryptoPrice from '@/app/ui/components/ClientCryptoPrice/index';
 import Link from 'next/link';
+import { ProductStatus } from '@/generated/prisma';
 export default async function PurchasePage() {
 	const productTypes = await fetchProductTypes();
 
@@ -32,13 +33,15 @@ export default async function PurchasePage() {
 							生产商：{product.manufacturerCompany.name}
 						</p>
 						<p className="text-sm">
-							库存数量：{product.products.length}
+							库存数量：
+							{
+								product.products.filter((p) => {
+									return (
+										p.status === ProductStatus.MANUFACTURING
+									);
+								}).length
+							}
 						</p>
-						{/* {product.description && (
-							<p className="text-sm mb-2">
-								{product.description}
-							</p>
-						)} */}
 						<div className="pb-14"></div>
 						<div className="absolute bottom-4 left-0 w-full px-4 flex flex-col-reverse lg:justify-between lg:flex-row">
 							<Link href={`/dashboard/purchase/${product.id}`}>

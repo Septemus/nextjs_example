@@ -1,10 +1,6 @@
 'use client';
 import { createProduct } from '@/app/lib/actions';
-import {
-	fetchCompanies,
-	fetchCompanyOfUser,
-	fetchUserByEmail,
-} from '@/app/lib/data';
+import { fetchUserByEmail } from '@/app/lib/data';
 import {
 	companies,
 	product_types,

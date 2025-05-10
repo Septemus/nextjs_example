@@ -1,11 +1,18 @@
 'use client';
 
+import { createOrder } from '@/app/lib/actions';
+import { fetchUserByEmail } from '@/app/lib/data';
 import ClientCryptoPrice from '@/app/ui/components/ClientCryptoPrice';
+import { abi, contractAddress, platformWalletAddr } from '@/contracts';
 import { product_types, products } from '@/generated/prisma';
 import { UsdtCircleColorful } from '@ant-design/web3-icons';
-import { Button, Input, InputNumber } from 'antd';
+import { Button, Input, InputNumber, message } from 'antd';
 import { useFormik } from 'formik';
+import { useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import { parseUnits } from 'viem';
+import { useWriteContract } from 'wagmi';
 import * as Yup from 'yup';
 
 export default function ProductPurchaseForm({
@@ -13,32 +20,77 @@ export default function ProductPurchaseForm({
 }: {
 	product_type: product_types & { products: products[] };
 }) {
+	const { writeContractAsync, isPending } = useWriteContract();
+	const [messageApi, contextHolder] = message.useMessage();
+	const router = useRouter();
+	const session = useSession();
 	const formik = useFormik({
 		initialValues: {
 			quantity: 1,
-			address: '',
+			totalPrice: 0,
+			shippingAddress: '',
 			recipientName: '',
 			phoneNumber: '',
+			buyerId: '',
 		},
 		validationSchema: Yup.object({
 			quantity: Yup.number()
 				.min(1, '数量不能小于1')
 				.required('请填写购买数量'),
-			address: Yup.string().required('请填写收货地址'),
+			shippingAddress: Yup.string().required('请填写收货地址'),
 			recipientName: Yup.string().required('请填写收货人姓名'),
 			phoneNumber: Yup.string()
 				.matches(/^1[3-9]\d{9}$/, '手机号格式不正确')
 				.required('请填写联系电话'),
+			buyerId: Yup.string().required('买家id未加载成功'),
 		}),
-		onSubmit: (values) => {},
+		onSubmit: (values) => {
+			writeContractAsync({
+				address: contractAddress.USDT as `0x${string}`,
+				abi: abi.USDT.abi,
+				functionName: 'transfer',
+				args: [platformWalletAddr, parseUnits(`${totalCost}`, 18)],
+			})
+				.then(() => {
+					return createOrder({
+						product_type,
+						order_info: values,
+					});
+				})
+				.then(() => {
+					return messageApi.open({
+						type: 'success',
+						content: '添加商品记录成功',
+					});
+				})
+				.then(() => {
+					router.replace('/dashboard/purchase');
+				})
+				.catch((err) => {
+					console.error(err);
+					messageApi.open({
+						type: 'error',
+						content: '添加商品记录失败',
+					});
+				});
+		},
 	});
-
+	useEffect(() => {
+		const email = session.data?.user?.email;
+		if (email) {
+			fetchUserByEmail(email).then((res) => {
+				formik.setFieldValue('buyerId', res?.id);
+			});
+		}
+	}, []);
 	const [totalCost, setTotalCost] = useState(BigInt(0));
 	useEffect(() => {
+		formik.setFieldValue('totalPrice', totalCost);
+	}, [totalCost]);
+
+	useEffect(() => {
 		setTotalCost(
-			BigInt(product_type.price) *
-				BigInt(1e6) *
-				BigInt(formik.values.quantity),
+			BigInt(product_type.price) * BigInt(formik.values.quantity),
 		);
 	}, [formik.values.quantity, product_type.price]);
 
@@ -47,6 +99,7 @@ export default function ProductPurchaseForm({
 			onSubmit={formik.handleSubmit}
 			className="space-y-4 p-4 border rounded-xl shadow"
 		>
+			{contextHolder}
 			<div>
 				<label className="block font-semibold mb-1">购买数量</label>
 				<InputNumber
@@ -74,17 +127,18 @@ export default function ProductPurchaseForm({
 				<label className="block font-semibold mb-1">收货地址</label>
 				<Input
 					type="text"
-					name="address"
+					name="shippingAddress"
 					className="w-full border px-3 py-2 rounded"
 					onChange={formik.handleChange}
 					onBlur={formik.handleBlur}
-					value={formik.values.address}
+					value={formik.values.shippingAddress}
 				/>
-				{formik.touched.address && formik.errors.address && (
-					<div className="text-red-500 text-sm">
-						{formik.errors.address}
-					</div>
-				)}
+				{formik.touched.shippingAddress &&
+					formik.errors.shippingAddress && (
+						<div className="text-red-500 text-sm">
+							{formik.errors.shippingAddress}
+						</div>
+					)}
 			</div>
 
 			<div>
@@ -126,7 +180,7 @@ export default function ProductPurchaseForm({
 				<label className="block font-semibold mb-1">花费：</label>
 				<ClientCryptoPrice
 					icon={<UsdtCircleColorful />}
-					value={totalCost}
+					value={totalCost * BigInt(1e6)}
 					decimals={6}
 					symbol="USDT"
 				/>

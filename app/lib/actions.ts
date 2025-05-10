@@ -7,7 +7,7 @@ import postgres from 'postgres';
 import { redirect } from 'next/navigation';
 import prisma from '@/app/lib/prisma';
 import bcrypt from 'bcrypt';
-import { ProductStatus, Role } from '@/generated/prisma';
+import { product_types, ProductStatus, Role } from '@/generated/prisma';
 const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' });
 
 const FormSchema = z.object({
@@ -235,5 +235,49 @@ export async function createProductType(p: {
 }) {
 	await prisma.product_types.create({
 		data: p,
+	});
+}
+
+export async function createOrder(o: {
+	product_type: product_types;
+	order_info: {
+		quantity: number;
+		shippingAddress: string;
+		recipientName: string;
+		totalPrice: number;
+		phoneNumber: string;
+		buyerId: string;
+	};
+}) {
+	const selectedProducts = await prisma.products.findMany({
+		where: {
+			id: o.product_type.id,
+		},
+		take: o.order_info.quantity,
+	});
+	await prisma.orders.create({
+		data: {
+			productTypeId: o.product_type.id,
+			...o.order_info,
+			order_items: {
+				create: selectedProducts.map((p) => {
+					return {
+						productId: p.id,
+					};
+				}),
+			},
+		},
+	});
+	await prisma.products.updateMany({
+		where: {
+			id: {
+				in: selectedProducts.map((p) => {
+					return p.id;
+				}),
+			},
+		},
+		data: {
+			status: ProductStatus.DISTRIBUTING,
+		},
 	});
 }

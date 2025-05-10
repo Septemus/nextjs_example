@@ -45,6 +45,8 @@ model users {
   foundedCompany companies[] @relation("found")
   createdProducts products[] @relation("created_products") // 🔥加这行
   ownedProducts   products[] @relation("owned_products")   // 🔥加这行
+
+  buyOrders     orders[]     @relation("buy_orders") // 新增：我下过的订单
 }
 
 model companies {
@@ -79,6 +81,7 @@ model product_types {
   manufacturerCompany companies @relation("company_product_types", fields: [companyId], references: [id], onUpdate: Cascade)
 
   products      products[]    @relation("type_to_products")
+  orders orders[] @relation("orders")
 }
 
 model products {
@@ -97,4 +100,42 @@ model products {
 
   creator           users         @relation("created_products", fields: [creatorId], references: [id], onUpdate: Cascade)
   currentOwner      users         @relation("owned_products", fields: [currentOwnerId], references: [id], onUpdate: Cascade)
+  order order_items? @relation("product_order")
+}
+
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  SHIPPED
+  DELIVERED
+}
+
+model orders {
+  id              Int           @id @default(autoincrement())
+  buyerId         String        @db.Uuid
+  productTypeId   Int
+  quantity        Int
+  totalPrice      BigInt
+  shippingAddress String
+  recipientName   String
+  phoneNumber     String
+  status          OrderStatus   @default(PENDING)
+  createdAt       DateTime      @default(now())
+
+  buyer           users         @relation("buy_orders",fields: [buyerId], references: [id], onUpdate: Cascade)
+  productType     product_types @relation("orders",fields: [productTypeId], references: [id], onUpdate: Cascade)
+  order_items order_items[] @relation("order_items")
+}
+
+model order_items {
+  id         Int      @id @default(autoincrement())
+  orderId    Int
+  productId  Int @unique
+  createdAt  DateTime @default(now())
+
+  order      orders   @relation("order_items",fields: [orderId], references: [id], onUpdate: Cascade,onDelete: Cascade)
+  product    products @relation("product_order",fields: [productId], references: [id], onUpdate: Cascade)
+
+  @@unique([orderId, productId]) // 同一订单中不能重复添加同一个商品
 }
