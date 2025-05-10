@@ -12,6 +12,13 @@ import { useFormik } from 'formik';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import { UsdtCircleColorful } from '@ant-design/web3-icons';
+import {
+	CryptoInput,
+	type CryptoInputProps,
+	type Token,
+} from '@ant-design/web3';
+import { ETH, USDT } from '@ant-design/web3-assets/tokens';
 import * as Yup from 'yup';
 
 const CreateProductPage = () => {
@@ -21,11 +28,13 @@ const CreateProductPage = () => {
 	const formik = useFormik({
 		initialValues: {
 			name: '',
+			price: BigInt(0),
 			description: '',
 			companyId: null as number | null,
 		},
 		validationSchema: Yup.object({
 			name: Yup.string().required('商品名称不能为空'),
+			price: Yup.number().required('商品价格不能为空'),
 			description: Yup.string(),
 		}),
 		onSubmit: async () => {
@@ -108,6 +117,29 @@ const CreateProductPage = () => {
 						})}
 						value={formik.values.companyId}
 					/>
+				</div>
+				<div>
+					<label className="block mb-2 font-medium">设置价格</label>
+					<CryptoInput
+						onChange={(value) => {
+							if (value && value.inputString) {
+								formik.setFieldValue(
+									'price',
+									BigInt(value?.inputString),
+								);
+							} else {
+								formik.setFieldValue('price', null);
+								console.log();
+							}
+						}}
+						footer={false}
+						options={[USDT]}
+					/>
+					{formik.touched.price && formik.errors.price ? (
+						<div className="text-red-500 text-sm mt-1">
+							{formik.errors.price}
+						</div>
+					) : null}
 				</div>
 
 				<Button type="primary" htmlType="submit" className="mr-4">

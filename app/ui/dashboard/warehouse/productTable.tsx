@@ -11,6 +11,7 @@ import {
 	fetchProductById,
 	fetchUserById,
 } from '@/app/lib/data';
+import { UsdtCircleColorful } from '@ant-design/web3-icons';
 type Row = product_types & { products: products[] };
 interface ProductTableProps {
 	product_types: Row[];
@@ -84,6 +85,20 @@ const ProductTable: React.FC<ProductTableProps> = ({ product_types }) => {
 			title: '商品名称',
 			dataIndex: 'name',
 			key: 'name',
+		},
+		{
+			title: '商品价格',
+			dataIndex: 'price',
+			key: 'price',
+			render: (price: number) => {
+				return (
+					<div>
+						{price} USDT
+						<UsdtCircleColorful className="float-end" />
+					</div>
+				);
+			},
+			unsearchable: true,
 		},
 		{
 			title: '描述',

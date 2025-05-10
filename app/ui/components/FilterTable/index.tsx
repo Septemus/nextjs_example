@@ -24,6 +24,8 @@ function FilterTable<
 	columns: {
 		title: string;
 		dataIndex: DataIndex;
+		render?: (val: any) => ReactNode;
+		unsearchable?: boolean;
 		key: string;
 		ellipsis?: boolean;
 	}[];
@@ -168,10 +170,14 @@ function FilterTable<
 
 	const tabColumns = [
 		...columns.map((c) => {
-			return {
-				...c,
-				...getColumnSearchProps(c.dataIndex),
-			};
+			if (c.unsearchable) {
+				return c;
+			} else {
+				return {
+					...c,
+					...getColumnSearchProps(c.dataIndex),
+				};
+			}
 		}),
 		{
 			title: '操作',
