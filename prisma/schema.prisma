@@ -73,6 +73,7 @@ model product_types {
   name          String        // 商品名称
   description   String?       // 商品描述
   coverUrl      String?       // 商品图片链接
+  price         Int           @default(999999)
 
   companyId     Int
   manufacturerCompany companies @relation("company_product_types", fields: [companyId], references: [id], onUpdate: Cascade)
@@ -87,6 +88,7 @@ model products {
   createdAt         DateTime      @default(now())
 
   typeId            Int
+  price             Int           @default(999999)
   type              product_types @relation("type_to_products", fields: [typeId], references: [id], onUpdate: Cascade)
 
   creatorId         String        @db.Uuid
