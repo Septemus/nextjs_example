@@ -230,7 +230,7 @@ export async function createProductType(p: {
 	name: string;
 	description: string;
 	companyId: number;
-	price: bigint;
+	price: bigint | number;
 }) {
 	await prisma.product_types.create({
 		data: p,

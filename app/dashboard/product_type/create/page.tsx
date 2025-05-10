@@ -8,7 +8,7 @@ import {
 } from '@/app/lib/data';
 import { companies } from '@/generated/prisma';
 import { Button, Input, Select, message } from 'antd';
-import { useFormik } from 'formik';
+import { Field, useFormik } from 'formik';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -28,7 +28,7 @@ const CreateProductPage = () => {
 	const formik = useFormik({
 		initialValues: {
 			name: '',
-			price: BigInt(0),
+			price: null as null | bigint | number,
 			description: '',
 			companyId: null as number | null,
 		},
@@ -121,21 +121,24 @@ const CreateProductPage = () => {
 				<div>
 					<label className="block mb-2 font-medium">设置价格</label>
 					<CryptoInput
+						value={{
+							token: USDT,
+						}}
 						onChange={(value) => {
-							if (value && value.inputString) {
+							console.log(value);
+							if (value && value.inputString && value.token) {
 								formik.setFieldValue(
 									'price',
-									BigInt(value?.inputString),
+									parseInt(value?.inputString),
 								);
 							} else {
 								formik.setFieldValue('price', null);
-								console.log();
 							}
 						}}
 						footer={false}
 						options={[USDT]}
 					/>
-					{formik.touched.price && formik.errors.price ? (
+					{formik.errors.price ? (
 						<div className="text-red-500 text-sm mt-1">
 							{formik.errors.price}
 						</div>
