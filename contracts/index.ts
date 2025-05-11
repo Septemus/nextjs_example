@@ -1,5 +1,3 @@
-import 'dotenv/config';
-
 import ProductRegistry from './abi/ProductRegistry.json';
 import USDT from './abi/USDT.json';
 import { privateKeyToAccount } from 'viem/accounts';
@@ -15,6 +13,7 @@ export const contractAddress = {
 export const platformWalletAddr = '0xf0f35c0D8176f2de351fAFDa5f2FB2900B1712ED';
 export const platformWalletPrivateKey = process.env
 	.PLATFORM_WALLET_PRIVATE_KEY as `0x${string}`;
+export const platformSlogan = process.env.NEXT_PUBLIC_PLATFORM_SLOGAN!;
 export const createPlatformWallet = () => {
 	const account = privateKeyToAccount(platformWalletPrivateKey);
 	const client = createWalletClient({
@@ -25,7 +24,7 @@ export const createPlatformWallet = () => {
 			nativeCurrency: { name: 'ETH', symbol: 'ETH', decimals: 18 },
 			rpcUrls: {
 				default: {
-					http: ['http://127.0.0.1:8545'], // Ganache default RPC
+					http: ['http://127.0.0.1:7545'], // Ganache default RPC
 				},
 			},
 		},

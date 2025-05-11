@@ -4,6 +4,7 @@ import ClientCryptoPrice from '@/app/ui/components/ClientCryptoPrice/index';
 import { UsdtCircleColorful } from '@/app/ui/components/ClientIcons/index';
 import ConfirmReceive from '@/app/ui/dashboard/orders/ConfirmReceive';
 import OrdersItemTable from '@/app/ui/dashboard/orders/OrdersItemTable';
+import ReceiveMoney from '@/app/ui/dashboard/orders/ReceiveMoney';
 import ShipModal from '@/app/ui/dashboard/orders/ShipModal';
 import { auth } from '@/auth';
 import { OrderStatus } from '@/generated/prisma';
@@ -78,13 +79,14 @@ export default async function OrderDetailPage(props: {
 				</>
 			) : null}
 
-			<section>
+			<section className="mb-6">
 				{order.buyerId === user?.id ? (
 					<ConfirmReceive order={order} />
 				) : (
 					<ShipModal order={order} />
 				)}
 			</section>
+			{order.buyerId !== user?.id ? <ReceiveMoney order={order} /> : null}
 		</div>
 	);
 }

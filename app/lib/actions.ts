@@ -17,7 +17,7 @@ import {
 } from '@/generated/prisma';
 import { fetchOrderById } from './data';
 import { abi, contractAddress, createPlatformWallet } from '@/contracts';
-import { parseUnits } from 'viem';
+import { parseUnits, verifyMessage } from 'viem';
 const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' });
 
 const FormSchema = z.object({
@@ -343,7 +343,7 @@ export async function confirmReceiving(
 		});
 	}
 }
-export async function transferUSDTTo(addr: string, amount: number) {
+async function transferUSDTTo(addr: string, amount: string) {
 	const platformWallet = createPlatformWallet();
 	const tx = await platformWallet.writeContract({
 		address: contractAddress.USDT as `0x${string}`,
@@ -352,4 +352,22 @@ export async function transferUSDTTo(addr: string, amount: number) {
 		args: [addr, parseUnits(amount.toString(), 18)],
 	});
 	console.log(tx);
+	return tx;
+}
+export async function applyForReceivingUSDT(
+	addr: `0x${string}`,
+	message: string,
+	signature: `0x${string}`,
+	amnount: string,
+) {
+	const recovered = await verifyMessage({
+		address: addr,
+		message,
+		signature,
+	});
+	if (recovered) {
+		return await transferUSDTTo(addr, amnount);
+	} else {
+		throw new AuthError('signature verification failed');
+	}
 }
