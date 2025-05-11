@@ -7,7 +7,12 @@ import postgres from 'postgres';
 import { redirect } from 'next/navigation';
 import prisma from '@/app/lib/prisma';
 import bcrypt from 'bcrypt';
-import { product_types, ProductStatus, Role } from '@/generated/prisma';
+import {
+	OrderStatus,
+	product_types,
+	ProductStatus,
+	Role,
+} from '@/generated/prisma';
 const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' });
 
 const FormSchema = z.object({
@@ -278,6 +283,27 @@ export async function createOrder(o: {
 		},
 		data: {
 			status: ProductStatus.DISTRIBUTING,
+		},
+	});
+}
+
+export async function addShippingInfo(shippingInfo: {
+	address: string;
+	sender: string;
+	phone: string;
+	trackingNumber: string;
+	order_id: number;
+}) {
+	await prisma.orders.update({
+		where: {
+			id: shippingInfo.order_id,
+		},
+		data: {
+			shippingOriginAddress: shippingInfo.address,
+			shippingExpressNumber: shippingInfo.trackingNumber,
+			shippingOriginPersonName: shippingInfo.sender,
+			shippingOriginPhoneNumber: shippingInfo.phone,
+			status: OrderStatus.CONFIRMED,
 		},
 	});
 }

@@ -120,6 +120,10 @@ model orders {
   shippingAddress String
   recipientName   String
   phoneNumber     String
+  shippingOriginAddress String? 
+  shippingOriginPersonName String?
+  shippingOriginPhoneNumber String?
+  shippingExpressNumber String?
   status          OrderStatus   @default(PENDING)
   createdAt       DateTime      @default(now())
 

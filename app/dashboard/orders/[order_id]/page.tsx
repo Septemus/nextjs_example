@@ -3,7 +3,9 @@ import { fetchOrderById } from '@/app/lib/data';
 import ClientCryptoPrice from '@/app/ui/components/ClientCryptoPrice/index';
 import { UsdtCircleColorful } from '@/app/ui/components/ClientIcons/index';
 import OrdersItemTable from '@/app/ui/dashboard/orders/OrdersItemTable';
-import { Button } from 'antd';
+import ShipModal from '@/app/ui/dashboard/orders/ShipModal';
+import { OrderStatus } from '@/generated/prisma';
+import { Button, Table } from 'antd';
 const mapping = {
 	['PENDING']: '未发货',
 	['CONFIRMED']: '已发货',
@@ -56,10 +58,21 @@ export default async function OrderDetailPage(props: {
 				<p className="text-blue-600 font-medium">
 					{mapping[order.status]}
 				</p>
+				{order.status === OrderStatus.CONFIRMED ? (
+					<>
+						<section>
+							<h2 className="text-lg font-semibold">发货信息</h2>
+							<p>发件人: {order.shippingOriginPersonName}</p>
+							<p>发件地址: {order.shippingOriginAddress}</p>
+							<p>快递编号: {order.shippingExpressNumber}</p>
+							<p>联系电话: {order.shippingOriginPhoneNumber}</p>
+						</section>
+					</>
+				) : null}
 			</section>
 
 			<section>
-				<Button type="primary">发货</Button>
+				<ShipModal order={order} />
 			</section>
 		</div>
 	);
