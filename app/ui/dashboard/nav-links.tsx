@@ -43,7 +43,7 @@ const distributorLinks = [
 	},
 	{
 		name: '订单管理',
-		href: '/dashboard/invoices',
+		href: '/dashboard/orders',
 		icon: DocumentDuplicateIcon,
 	},
 	{ name: '客户管理', href: '/dashboard/customers', icon: UserGroupIcon },

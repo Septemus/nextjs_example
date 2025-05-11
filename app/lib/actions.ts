@@ -8,11 +8,16 @@ import { redirect } from 'next/navigation';
 import prisma from '@/app/lib/prisma';
 import bcrypt from 'bcrypt';
 import {
+	order_items,
+	orders,
 	OrderStatus,
 	product_types,
 	ProductStatus,
 	Role,
 } from '@/generated/prisma';
+import { fetchOrderById } from './data';
+import { abi, contractAddress, createPlatformWallet } from '@/contracts';
+import { parseUnits } from 'viem';
 const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' });
 
 const FormSchema = z.object({
@@ -306,4 +311,45 @@ export async function addShippingInfo(shippingInfo: {
 			status: OrderStatus.CONFIRMED,
 		},
 	});
+}
+
+export async function confirmReceiving(
+	order: NonNullable<Awaited<ReturnType<typeof fetchOrderById>>>,
+) {
+	await prisma.orders.update({
+		where: {
+			id: order.id,
+		},
+		data: {
+			status: OrderStatus.DELIVERED,
+		},
+	});
+	const receiver_id = (await prisma.orders.findUnique({
+		where: {
+			id: order.id,
+		},
+		select: {
+			buyerId: true,
+		},
+	}))!.buyerId;
+	for (const oi of order.order_items) {
+		await prisma.products.update({
+			data: {
+				currentOwnerId: receiver_id,
+			},
+			where: {
+				id: oi.product.id,
+			},
+		});
+	}
+}
+export async function transferUSDTTo(addr: string, amount: number) {
+	const platformWallet = createPlatformWallet();
+	const tx = await platformWallet.writeContract({
+		address: contractAddress.USDT as `0x${string}`,
+		abi: abi.USDT.abi,
+		functionName: 'transfer',
+		args: [addr, parseUnits(amount.toString(), 18)],
+	});
+	console.log(tx);
 }

@@ -1,11 +1,12 @@
 // pages/orders/[id].tsx
-import { fetchOrderById } from '@/app/lib/data';
+import { fetchOrderById, fetchUserByEmail } from '@/app/lib/data';
 import ClientCryptoPrice from '@/app/ui/components/ClientCryptoPrice/index';
 import { UsdtCircleColorful } from '@/app/ui/components/ClientIcons/index';
+import ConfirmReceive from '@/app/ui/dashboard/orders/ConfirmReceive';
 import OrdersItemTable from '@/app/ui/dashboard/orders/OrdersItemTable';
 import ShipModal from '@/app/ui/dashboard/orders/ShipModal';
+import { auth } from '@/auth';
 import { OrderStatus } from '@/generated/prisma';
-import { Button, Table } from 'antd';
 const mapping = {
 	['PENDING']: '未发货',
 	['CONFIRMED']: '已发货',
@@ -18,7 +19,12 @@ export default async function OrderDetailPage(props: {
 	const params = await props.params;
 	const id = parseInt(params.order_id);
 	const order = (await fetchOrderById(id))!;
-
+	const session = await auth();
+	if (!session?.user?.email) {
+		throw new Error('未登录或 session 信息不完整');
+	}
+	// 根据用户邮箱查公司 ID
+	const user = await fetchUserByEmail(session.user.email);
 	return (
 		<div className="max-w-4xl mx-auto p-6 bg-white rounded shadow">
 			<h1 className="text-2xl font-bold mb-4">订单 #{id}</h1>
@@ -58,21 +64,26 @@ export default async function OrderDetailPage(props: {
 				<p className="text-blue-600 font-medium">
 					{mapping[order.status]}
 				</p>
-				{order.status === OrderStatus.CONFIRMED ? (
-					<>
-						<section>
-							<h2 className="text-lg font-semibold">发货信息</h2>
-							<p>发件人: {order.shippingOriginPersonName}</p>
-							<p>发件地址: {order.shippingOriginAddress}</p>
-							<p>快递编号: {order.shippingExpressNumber}</p>
-							<p>联系电话: {order.shippingOriginPhoneNumber}</p>
-						</section>
-					</>
-				) : null}
 			</section>
 
+			{order.status !== OrderStatus.PENDING ? (
+				<>
+					<section className="mb-6">
+						<h2 className="text-lg font-semibold">发货信息</h2>
+						<p>发件人: {order.shippingOriginPersonName}</p>
+						<p>发件地址: {order.shippingOriginAddress}</p>
+						<p>快递编号: {order.shippingExpressNumber}</p>
+						<p>联系电话: {order.shippingOriginPhoneNumber}</p>
+					</section>
+				</>
+			) : null}
+
 			<section>
-				<ShipModal order={order} />
+				{order.buyerId === user?.id ? (
+					<ConfirmReceive order={order} />
+				) : (
+					<ShipModal order={order} />
+				)}
 			</section>
 		</div>
 	);
