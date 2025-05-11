@@ -1,7 +1,7 @@
 'use client';
 import FilterTable from '@/app/ui/components/FilterTable';
 import React from 'react';
-import { Button, message } from 'antd';
+import { Button, message, Popconfirm } from 'antd';
 import Link from 'next/link';
 import { useWriteContract } from 'wagmi';
 import { abi, contractAddress } from '@/contracts/index';
@@ -187,9 +187,35 @@ const ProductTable: React.FC<ProductTableProps> = ({ product_types }) => {
 			>
 				{(id: number | string) => {
 					return (
-						<Link href={`/dashboard/product/create/${id}`}>
-							<Button type="primary">添加记录</Button>
-						</Link>
+						<>
+							<Link
+								href={`/dashboard/product/create/${id}`}
+								className="mr-2"
+							>
+								<Button type="primary">添加记录</Button>
+							</Link>
+							<Popconfirm
+								title="确定要删除吗？"
+								onConfirm={() => {}}
+								okText="是"
+								cancelText="否"
+							>
+								<Button
+									variant="solid"
+									color="danger"
+									className="mr-2"
+								>
+									删除
+								</Button>
+							</Popconfirm>
+							<Button
+								variant="solid"
+								color="green"
+								className="mr-2"
+							>
+								修改
+							</Button>
+						</>
 					);
 				}}
 			</FilterTable>

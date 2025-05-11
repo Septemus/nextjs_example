@@ -17,7 +17,6 @@ function FilterTable<
 	data,
 	columns,
 	expandedRowRender,
-	propHandleDelete,
 	children,
 }: {
 	data: DataType[];
@@ -30,20 +29,12 @@ function FilterTable<
 		ellipsis?: boolean;
 	}[];
 	expandedRowRender?: (record: DataType) => React.ReactNode;
-	propHandleDelete?: (id: string | number) => void;
 	children?: (id: number | string) => ReactNode;
 }) {
 	const [dataSource, setDataSource] = useState(data);
 	const [searchText, setSearchText] = useState('');
 	const [searchedColumn, setSearchedColumn] = useState('');
 	const searchInput = useRef<InputRef>(null);
-	const handleDelete = (id: string | number) => {
-		setDataSource(dataSource.filter((item) => item.id !== id));
-		// ❗这里实际项目还应该调用API去删除数据库里的数据
-		if (propHandleDelete) {
-			propHandleDelete(id);
-		}
-	};
 	const getColumnSearchProps = (
 		dataIndex: DataIndex,
 	): TableColumnType<DataType> => ({
@@ -179,29 +170,14 @@ function FilterTable<
 				};
 			}
 		}),
-		{
+	];
+	if (children) {
+		tabColumns.push({
 			title: '操作',
 			key: 'action',
-			render: (_: any, record: DataType) => (
-				<>
-					<Popconfirm
-						title="确定要删除吗？"
-						onConfirm={() => handleDelete(record.id)}
-						okText="是"
-						cancelText="否"
-					>
-						<Button variant="solid" color="danger" className="mr-2">
-							删除
-						</Button>
-					</Popconfirm>
-					<Button variant="solid" color="green" className="mr-2">
-						修改
-					</Button>
-					{children ? children(record.id) : null}
-				</>
-			),
-		},
-	];
+			render: (_: any, record: DataType) => <>{children(record.id)}</>,
+		} as any);
+	}
 
 	return (
 		<>

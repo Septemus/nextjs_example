@@ -84,7 +84,22 @@ const ProductTable: React.FC<OrderTableProps> = ({ orders }) => {
 						status: mapping[o.status],
 					};
 				})}
-			></FilterTable>
+			>
+				{(id: number | string) => {
+					return (
+						<>
+							<Link
+								href={`/dashboard/orders/${id}`}
+								className="mr-2"
+							>
+								<Button variant="solid" color="green">
+									详情
+								</Button>
+							</Link>
+						</>
+					);
+				}}
+			</FilterTable>
 		</>
 	);
 };

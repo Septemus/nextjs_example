@@ -290,3 +290,19 @@ export async function fetchProductById(id: number) {
 		},
 	});
 }
+export async function fetchOrderById(id: number) {
+	return await prisma.orders.findUnique({
+		where: {
+			id,
+		},
+		include: {
+			productType: true,
+			buyer: true,
+			order_items: {
+				include: {
+					product: true,
+				},
+			},
+		},
+	});
+}

@@ -1,0 +1,66 @@
+// pages/orders/[id].tsx
+import { fetchOrderById } from '@/app/lib/data';
+import ClientCryptoPrice from '@/app/ui/components/ClientCryptoPrice/index';
+import { UsdtCircleColorful } from '@/app/ui/components/ClientIcons/index';
+import OrdersItemTable from '@/app/ui/dashboard/orders/OrdersItemTable';
+import { Button } from 'antd';
+const mapping = {
+	['PENDING']: '未发货',
+	['CONFIRMED']: '已发货',
+	['DELIVERED']: '已收货',
+	['SHIPPED']: '',
+};
+export default async function OrderDetailPage(props: {
+	params: Promise<{ order_id: string }>;
+}) {
+	const params = await props.params;
+	const id = parseInt(params.order_id);
+	const order = (await fetchOrderById(id))!;
+
+	return (
+		<div className="max-w-4xl mx-auto p-6 bg-white rounded shadow">
+			<h1 className="text-2xl font-bold mb-4">订单 #{id}</h1>
+
+			<section className="mb-6">
+				<h2 className="text-lg font-semibold">买家信息</h2>
+				<p>姓名: {order.buyer.name}</p>
+				<p>电子邮箱: {order.buyer.email}</p>
+			</section>
+
+			<section className="mb-6">
+				<h2 className="text-lg font-semibold">收货信息</h2>
+				<p>收件人: {order.recipientName}</p>
+				<p>收件地址: {order.shippingAddress}</p>
+				<p>联系电话: {order.phoneNumber}</p>
+			</section>
+
+			<section className="mb-6">
+				<h2 className="text-lg font-semibold">订单包含商品物件</h2>
+				<OrdersItemTable order={order} />
+			</section>
+
+			<section className="mb-6">
+				<h2 className="text-lg font-semibold">总消费</h2>
+				<p className="text-xl font-bold">
+					<ClientCryptoPrice
+						icon={<UsdtCircleColorful />}
+						value={BigInt(order.productType.price) * BigInt(1e6)}
+						decimals={6}
+						symbol="USDT"
+					/>
+				</p>
+			</section>
+
+			<section className="mb-6">
+				<h2 className="text-lg font-semibold">订单状态</h2>
+				<p className="text-blue-600 font-medium">
+					{mapping[order.status]}
+				</p>
+			</section>
+
+			<section>
+				<Button type="primary">发货</Button>
+			</section>
+		</div>
+	);
+}

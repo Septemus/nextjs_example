@@ -4,6 +4,7 @@ import { Suspense } from 'react';
 import OrderTable from '@/app/ui/dashboard/orders/OrderTable';
 import { Skeleton } from 'antd';
 import { auth } from '@/auth';
+import { Role } from '@/generated/prisma';
 export const metadata: Metadata = {
 	title: 'Warehouse',
 };
@@ -15,7 +16,7 @@ export default async function Page() {
 	// 根据用户邮箱查公司 ID
 	const user = await prisma.users.findUnique({
 		where: { email: session.user.email },
-		select: { foundedCompany: true, companiesId: true },
+		select: { foundedCompany: true, companiesId: true, role: true },
 	});
 	const orders = await prisma.orders.findMany({
 		where: {
