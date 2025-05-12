@@ -107,8 +107,8 @@ model products {
 enum OrderStatus {
   PENDING
   CONFIRMED
-  SHIPPED
   DELIVERED
+  PAID
 }
 
 model orders {
