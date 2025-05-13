@@ -14,10 +14,15 @@ export default async function Layout({
 	children: React.ReactNode;
 }) {
 	const session = await auth();
-	const initialState = cookieToInitialState(
-		getConfig(),
-		(await headers()).get('cookie'),
-	);
+	let initialState = undefined;
+	try {
+		initialState = cookieToInitialState(
+			getConfig(),
+			(await headers()).get('cookie'),
+		);
+	} catch (err) {
+		console.warn(err);
+	}
 	return (
 		<div className="flex h-screen flex-col md:flex-row md:overflow-hidden">
 			<SSRWagmiProvider initialState={initialState}>
