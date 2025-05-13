@@ -8,6 +8,7 @@ import ReceiveMoney from '@/app/ui/dashboard/orders/ReceiveMoney';
 import ShipModal from '@/app/ui/dashboard/orders/ShipModal';
 import { auth } from '@/auth';
 import { OrderStatus } from '@/generated/prisma';
+import { notFound } from 'next/navigation';
 const mapping = {
 	['PENDING']: '未发货',
 	['CONFIRMED']: '已发货',
@@ -19,7 +20,10 @@ export default async function OrderDetailPage(props: {
 }) {
 	const params = await props.params;
 	const id = parseInt(params.order_id);
-	const order = (await fetchOrderById(id))!;
+	const order = await fetchOrderById(id);
+	if (order === null) {
+		notFound();
+	}
 	const session = await auth();
 	if (!session?.user?.email) {
 		throw new Error('未登录或 session 信息不完整');
