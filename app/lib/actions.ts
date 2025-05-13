@@ -261,7 +261,7 @@ export async function createOrder(o: {
 }) {
 	const selectedProducts = await prisma.products.findMany({
 		where: {
-			id: o.product_type.id,
+			typeId: o.product_type.id,
 		},
 		take: o.order_info.quantity,
 	});
