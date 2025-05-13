@@ -12,7 +12,7 @@ const mapping = {
 	['PENDING']: '未发货',
 	['CONFIRMED']: '已发货',
 	['DELIVERED']: '已收货',
-	['SHIPPED']: '',
+	['PAID']: '已收款',
 };
 export default async function OrderDetailPage(props: {
 	params: Promise<{ order_id: string }>;
@@ -80,13 +80,20 @@ export default async function OrderDetailPage(props: {
 			) : null}
 
 			<section className="mb-6">
-				{order.buyerId === user?.id ? (
+				{order.buyerId === user?.id &&
+				order.status === OrderStatus.CONFIRMED ? (
 					<ConfirmReceive order={order} />
-				) : (
+				) : null}
+				{order.buyerId !== user?.id &&
+				order.status === OrderStatus.PENDING ? (
 					<ShipModal order={order} />
-				)}
+				) : null}
 			</section>
-			{order.buyerId !== user?.id ? <ReceiveMoney order={order} /> : null}
+			{order.buyerId !== user?.id &&
+			(order.status === OrderStatus.DELIVERED ||
+				order.status === OrderStatus.PAID) ? (
+				<ReceiveMoney order={order} />
+			) : null}
 		</div>
 	);
 }

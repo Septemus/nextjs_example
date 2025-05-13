@@ -13,7 +13,7 @@ const mapping = {
 	['PENDING']: '未发货',
 	['CONFIRMED']: '已发货',
 	['DELIVERED']: '已收货',
-	['SHIPPED']: '',
+	['PAID']: '已收款',
 };
 const ProductTable: React.FC<OrderTableProps> = ({ orders }) => {
 	const columns = [

@@ -8,6 +8,7 @@ import { useAccount, useSignMessage } from 'wagmi';
 import { applyForReceivingUSDT } from '@/app/lib/actions';
 import { useState } from 'react';
 import { Address } from '@ant-design/web3';
+import { OrderStatus } from '@/generated/prisma';
 export default function ReceiveMoney({
 	order,
 }: {
@@ -20,7 +21,9 @@ export default function ReceiveMoney({
 	return (
 		<section className="mb-6">
 			{contextHolder}
-			<h2 className="text-lg font-semibold">领取金额</h2>
+			<h2 className="text-lg font-semibold">
+				{order.status === OrderStatus.PAID ? '已' : ''}领取金额
+			</h2>
 			<p className="text-xl font-bold flex justify-between">
 				<ClientCryptoPrice
 					icon={<UsdtCircleColorful />}
@@ -33,6 +36,7 @@ export default function ReceiveMoney({
 				/>
 				<Button
 					className="w-24"
+					disabled={order.status === OrderStatus.PAID}
 					icon={<UsdtCircleColorful />}
 					onClick={() => {
 						if (!address || !isConnected) {
@@ -68,7 +72,7 @@ export default function ReceiveMoney({
 						}
 					}}
 				>
-					领取
+					{order.status === OrderStatus.PAID ? '已' : ''}领取
 				</Button>
 			</p>
 			{txHash !== '' ? (
