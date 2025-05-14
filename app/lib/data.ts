@@ -296,11 +296,19 @@ export async function fetchOrderById(id: number) {
 			id,
 		},
 		include: {
-			productType: true,
+			productType: {
+				include: {
+					manufacturerCompany: true,
+				},
+			},
 			buyer: true,
 			order_items: {
 				include: {
-					product: true,
+					product: {
+						include: {
+							creator: true,
+						},
+					},
 				},
 			},
 		},

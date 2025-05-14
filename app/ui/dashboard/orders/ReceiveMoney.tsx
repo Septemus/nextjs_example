@@ -43,18 +43,13 @@ export default function ReceiveMoney({
 							messageApi.error('未连接钱包');
 						} else {
 							signMessageAsync({
-								message:
-									process.env.NEXT_PUBLIC_PLATFORM_SLOGAN!,
+								message: order.id.toString(),
 							})
 								.then((res) => {
 									return applyForReceivingUSDT(
 										address,
-										process.env
-											.NEXT_PUBLIC_PLATFORM_SLOGAN!,
+										order.id,
 										res,
-										(
-											Number(order.productType.price) - 1
-										).toString(),
 									);
 								})
 								.then((res) => {

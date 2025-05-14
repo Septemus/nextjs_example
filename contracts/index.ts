@@ -1,5 +1,5 @@
-import ProductRegistry from './abi/ProductRegistry.json';
-import USDT from './abi/USDT.json';
+import ProductRegistry from './abi/ProductRegistry';
+import USDT from './abi/USDT';
 import { privateKeyToAccount } from 'viem/accounts';
 import { createWalletClient, http } from 'viem';
 export const abi = {

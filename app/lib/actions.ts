@@ -16,8 +16,15 @@ import {
 	Role,
 } from '@/generated/prisma';
 import { fetchOrderById } from './data';
-import { abi, contractAddress, createPlatformWallet } from '@/contracts';
-import { parseUnits, verifyMessage } from 'viem';
+import { getContract, parseUnits, RpcRequestError, verifyMessage } from 'viem';
+import {
+	getProductBySerialNumber,
+	ProductStatusSolidity,
+	PublishProductOnChain,
+	transferOwnership,
+	transferUSDT,
+	updateProductStatus,
+} from './contract-actions';
 const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' });
 
 const FormSchema = z.object({
@@ -311,8 +318,32 @@ export async function addShippingInfo(shippingInfo: {
 			status: OrderStatus.CONFIRMED,
 		},
 	});
+	const order = await fetchOrderById(shippingInfo.order_id);
+	if (order) {
+		publishOnChainIfNot(order);
+	}
 }
-
+async function publishOnChainIfNot(
+	order: NonNullable<Awaited<ReturnType<typeof fetchOrderById>>>,
+) {
+	for (const oi of order.order_items) {
+		try {
+			await getProductBySerialNumber(oi.product.serialNumber);
+		} catch (err) {
+			await PublishProductOnChain([
+				order.productType.name,
+				order.productType.description ?? '',
+				oi.product.serialNumber,
+				oi.product.creator.email,
+				BigInt(oi.product.manufactureDate.getTime()),
+				BigInt(oi.product.createdAt.getTime()),
+				BigInt(order.productType.companyId),
+				order.productType.manufacturerCompany.name,
+				order.productType.price,
+			]);
+		}
+	}
+}
 export async function confirmReceiving(
 	order: NonNullable<Awaited<ReturnType<typeof fetchOrderById>>>,
 ) {
@@ -332,41 +363,61 @@ export async function confirmReceiving(
 			buyerId: true,
 		},
 	}))!.buyerId;
+	publishOnChainIfNot(order);
 	for (const oi of order.order_items) {
 		await prisma.products.update({
 			data: {
 				currentOwnerId: receiver_id,
+				status:
+					order.buyer.role === Role.DISTRIBUTOR
+						? ProductStatus.FOR_SALE
+						: ProductStatus.SOLD,
 			},
 			where: {
 				id: oi.product.id,
 			},
 		});
+		await transferOwnership(BigInt(oi.productId), order.buyer.email);
+		await updateProductStatus(
+			BigInt(oi.productId),
+			order.buyer.role === Role.DISTRIBUTOR
+				? ProductStatusSolidity.FOR_SALE
+				: ProductStatusSolidity.SOLD,
+		);
 	}
 }
-async function transferUSDTTo(addr: string, amount: string) {
-	const platformWallet = createPlatformWallet();
-	const tx = await platformWallet.writeContract({
-		address: contractAddress.USDT as `0x${string}`,
-		abi: abi.USDT.abi,
-		functionName: 'transfer',
-		args: [addr, parseUnits(amount.toString(), 18)],
-	});
-	console.log(tx);
+async function transferUSDTTo(addr: `0x${string}`, amount: string) {
+	const tx = await transferUSDT(addr, amount);
 	return tx;
 }
 export async function applyForReceivingUSDT(
 	addr: `0x${string}`,
-	message: string,
+	order_id: number,
 	signature: `0x${string}`,
-	amnount: string,
 ) {
 	const recovered = await verifyMessage({
 		address: addr,
-		message,
+		message: order_id.toString(),
 		signature,
 	});
 	if (recovered) {
-		return await transferUSDTTo(addr, amnount);
+		const order = await fetchOrderById(order_id);
+		if (order?.status === OrderStatus.PAID) {
+			throw new Error('已经领取过订单金额');
+		}
+		const txHash = await transferUSDTTo(
+			addr,
+			(Number(order?.totalPrice) - 1).toString(),
+		);
+		await prisma.orders.update({
+			where: {
+				id: order?.id,
+			},
+			data: {
+				status: OrderStatus.PAID,
+			},
+		});
+		return txHash;
 	} else {
 		throw new AuthError('signature verification failed');
 	}
