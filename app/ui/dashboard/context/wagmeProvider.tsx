@@ -9,6 +9,7 @@ import {
 	OkxWallet,
 	Mainnet,
 	Sepolia,
+	Localhost,
 } from '@ant-design/web3-wagmi';
 import { getConfig } from '@/wagme-config';
 
@@ -24,7 +25,7 @@ export function SSRWagmiProvider({ children, initialState }: Props) {
 	return (
 		<WagmiWeb3ConfigProvider
 			config={config}
-			chains={[Mainnet, Sepolia]}
+			chains={[Mainnet, Sepolia, Localhost]}
 			initialState={initialState}
 			ens
 			eip6963={{
