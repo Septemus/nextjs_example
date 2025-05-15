@@ -10,10 +10,10 @@ export const contractAddress = {
 	ProductRegistry: '0x77aA9F8c123F45423B6eD740257C26e881d3ebE6',
 	USDT: '0xfB3b19FA57D76379381662C3fffc1f61F63A5ab2',
 };
-export const platformWalletAddr = '0xf0f35c0D8176f2de351fAFDa5f2FB2900B1712ED';
+export const platformWalletAddr = process.env
+	.PLATFORM_WALLET_ADDR as `0x${string}`;
 export const platformWalletPrivateKey = process.env
 	.PLATFORM_WALLET_PRIVATE_KEY as `0x${string}`;
-export const platformSlogan = process.env.NEXT_PUBLIC_PLATFORM_SLOGAN!;
 export const createPlatformWallet = () => {
 	const account = privateKeyToAccount(platformWalletPrivateKey);
 	const client = createWalletClient({
