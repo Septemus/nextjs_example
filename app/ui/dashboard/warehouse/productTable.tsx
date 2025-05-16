@@ -16,20 +16,24 @@ import ClientCryptoPrice from '../../components/ClientCryptoPrice';
 type Row = product_types & { products: products[] };
 interface ProductTableProps {
 	product_types: Row[];
+	productId_isOnChain: Map<number, boolean>;
 }
 type ProductInput = {
 	name: string;
 	description: string;
 	serialNumber: string;
 	creatorEmail: string;
-	manufactureDate: number;
-	createdAt: number;
-	companyId: number;
+	manufactureDate: bigint;
+	createdAt: bigint;
+	companyId: bigint;
 	companyName: string;
-	price: number;
+	price: bigint;
 };
 
-const ProductTable: React.FC<ProductTableProps> = ({ product_types }) => {
+const ProductTable: React.FC<ProductTableProps> = ({
+	product_types,
+	productId_isOnChain,
+}) => {
 	const [messageApi, contextHolder] = message.useMessage();
 	const { writeContractAsync, isPending } = useWriteContract();
 	const handleUploadToBlockchain = async (record_id: string | number) => {
@@ -46,12 +50,12 @@ const ProductTable: React.FC<ProductTableProps> = ({ product_types }) => {
 					description: p.type.description || '',
 					serialNumber: p.serialNumber || '',
 					creatorEmail: (await fetchUserById(p.creatorId))?.email!,
-					manufactureDate: p.manufactureDate.getTime(),
-					createdAt: p.createdAt.getTime(),
-					companyId: p.type.companyId,
+					manufactureDate: BigInt(p.manufactureDate.getTime()),
+					createdAt: BigInt(p.createdAt.getTime()),
+					companyId: BigInt(p.type.companyId),
 					companyName: (await fetchCompanyById(p.type.companyId))
 						?.name!,
-					price: Number(p.type.price),
+					price: BigInt(Number(p.type.price)),
 				};
 			} else {
 				return null;
@@ -73,7 +77,17 @@ const ProductTable: React.FC<ProductTableProps> = ({ product_types }) => {
 				address: contractAddress.ProductRegistry as `0x${string}`,
 				abi: abi.ProductRegistry.abi,
 				functionName: 'registerProduct',
-				args: Object.values(productInput),
+				args: [
+					productInput.name,
+					productInput.description,
+					productInput.serialNumber,
+					productInput.creatorEmail,
+					productInput.manufactureDate,
+					productInput.createdAt,
+					productInput.companyId,
+					productInput.companyName,
+					productInput.price,
+				],
 			});
 			messageApi.success('商品上链交易发送成功！');
 			console.log('交易哈希:', tx);
@@ -168,16 +182,21 @@ const ProductTable: React.FC<ProductTableProps> = ({ product_types }) => {
 							]}
 						>
 							{(id) => {
+								const isOnchain = productId_isOnChain.get(
+									id as number,
+								);
 								return (
 									<Button
 										variant="solid"
-										color="blue"
+										color={isOnchain ? 'green' : 'blue'}
 										loading={isPending}
-										onClick={() =>
-											handleUploadToBlockchain(id)
-										}
+										onClick={() => {
+											if (!isOnchain) {
+												handleUploadToBlockchain(id);
+											}
+										}}
 									>
-										数据上链
+										{isOnchain ? '已上链' : '数据上链'}
 									</Button>
 								);
 							}}

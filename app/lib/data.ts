@@ -11,6 +11,7 @@ import {
 } from './definitions';
 import { formatCurrency } from './utils';
 import prisma from './prisma';
+import { detectIsOnChain } from './contract-actions';
 
 const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' });
 
@@ -313,4 +314,9 @@ export async function fetchOrderById(id: number) {
 			},
 		},
 	});
+}
+export async function fetchProductIsOnChain(
+	serialNumber: string,
+): Promise<boolean> {
+	return await detectIsOnChain(serialNumber);
 }

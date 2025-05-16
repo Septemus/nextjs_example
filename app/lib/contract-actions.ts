@@ -20,34 +20,34 @@ export enum ProductStatusSolidity {
 	SOLD,
 }
 
-export const getProductBySerialNumber = async (searialNumber: string) => {
+export async function getProductBySerialNumber(searialNumber: string) {
 	return await productRegistryContract.read.getProductBySerialNumber([
 		searialNumber,
 	]);
-};
-export const PublishProductOnChain = async (
+}
+export async function PublishProductOnChain(
 	args: Parameters<typeof productRegistryContract.write.registerProduct>[0],
-) => {
+) {
 	console.warn('商品未上链，正在上链中...');
 	const txHash = await productRegistryContract.write.registerProduct(args);
 	console.warn('商品上联成功', txHash);
 	return txHash;
-};
-export const transferOwnership = async (
+}
+export async function transferOwnership(
 	productId: bigint,
 	newOwnerEmail: string,
-) => {
+) {
 	console.log('添加流转记录中...');
 	const txHash = await productRegistryContract.write.transferOwnership([
 		productId,
 		newOwnerEmail,
 	]);
 	console.log('流转记录添加成功', txHash);
-};
-export const updateProductStatus = async (
+}
+export async function updateProductStatus(
 	product_id: bigint,
 	product_status: ProductStatusSolidity,
-) => {
+) {
 	console.log('商品状态更新中...');
 	const txHash = await productRegistryContract.write.updateProductStatus([
 		product_id,
@@ -55,7 +55,7 @@ export const updateProductStatus = async (
 	]);
 	console.log('商品状态更新成功', txHash);
 	return txHash;
-};
+}
 export async function transferUSDT(addr: `0x${string}`, amount: string) {
 	console.warn(`转移${amount}USDT中...`);
 	const txHash = await USDTContract.write.transfer([
@@ -64,4 +64,14 @@ export async function transferUSDT(addr: `0x${string}`, amount: string) {
 	]);
 	console.warn(`转移USDT成功`, txHash);
 	return txHash;
+}
+export async function detectIsOnChain(serialNumber: string) {
+	try {
+		await productRegistryContract.read.getProductBySerialNumber([
+			serialNumber,
+		]);
+		return true;
+	} catch (err) {
+		return false;
+	}
 }
