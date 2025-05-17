@@ -118,7 +118,7 @@ export default function CreateProductForm({
 					<label className="block mb-2 font-medium">设置价格</label>
 					<CryptoPrice
 						icon={<UsdtCircleColorful />}
-						value={BigInt(product_type.price) * BigInt(1e6)}
+						value={product_type.price * 100_0000n}
 						decimals={6}
 						symbol="USDT"
 					/>

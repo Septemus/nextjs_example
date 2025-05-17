@@ -29,7 +29,7 @@ export default async function ProductDetailPage({
 				<strong>价格：</strong>{' '}
 				<ClientCryptoPrice
 					icon={<UsdtCircleColorful />}
-					value={BigInt(product_type.price) * BigInt(1e6)}
+					value={product_type.price * 100_0000n}
 					decimals={6}
 					symbol="USDT"
 				/>

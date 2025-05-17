@@ -19,7 +19,7 @@ export default async function DashInfo() {
 	}
 	const totalSalesCapital = orders.reduce((prev, cur) => {
 		return prev + cur.totalPrice;
-	}, BigInt(0));
+	}, 0n);
 	const totalSales = orders.reduce((prev, cur) => {
 		return prev + cur.quantity;
 	}, 0);

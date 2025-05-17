@@ -83,15 +83,13 @@ export default function ProductPurchaseForm({
 			});
 		}
 	}, []);
-	const [totalCost, setTotalCost] = useState(BigInt(0));
+	const [totalCost, setTotalCost] = useState(0n);
 	useEffect(() => {
 		formik.setFieldValue('totalPrice', totalCost);
 	}, [totalCost]);
 
 	useEffect(() => {
-		setTotalCost(
-			BigInt(product_type.price) * BigInt(formik.values.quantity),
-		);
+		setTotalCost(product_type.price * BigInt(formik.values.quantity));
 	}, [formik.values.quantity, product_type.price]);
 
 	return (
@@ -180,7 +178,7 @@ export default function ProductPurchaseForm({
 				<label className="block font-semibold mb-1">花费：</label>
 				<ClientCryptoPrice
 					icon={<UsdtCircleColorful />}
-					value={totalCost * BigInt(1e6)}
+					value={totalCost * 100_0000n}
 					decimals={6}
 					symbol="USDT"
 				/>

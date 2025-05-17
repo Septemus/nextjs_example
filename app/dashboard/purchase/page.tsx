@@ -51,7 +51,7 @@ export default async function PurchasePage() {
 							</Link>
 							<ClientCryptoPrice
 								icon={<UsdtCircleColorful />}
-								value={BigInt(product.price) * BigInt(1e6)}
+								value={product.price * 100_0000n}
 								decimals={6}
 								symbol="USDT"
 							/>

@@ -27,10 +27,7 @@ export default function ReceiveMoney({
 			<p className="text-xl font-bold flex justify-between">
 				<ClientCryptoPrice
 					icon={<UsdtCircleColorful />}
-					value={
-						(BigInt(order.productType.price) - BigInt(1)) *
-						BigInt(1e6)
-					}
+					value={(order.productType.price - 1n) * 100_0000n}
 					decimals={6}
 					symbol="USDT"
 				/>

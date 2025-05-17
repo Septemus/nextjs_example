@@ -55,7 +55,7 @@ const ProductTable: React.FC<ProductTableProps> = ({
 					companyId: BigInt(p.type.companyId),
 					companyName: (await fetchCompanyById(p.type.companyId))
 						?.name!,
-					price: BigInt(Number(p.type.price)),
+					price: p.type.price,
 				};
 			} else {
 				return null;
@@ -112,7 +112,7 @@ const ProductTable: React.FC<ProductTableProps> = ({
 					<div>
 						<ClientCryptoPrice
 							icon={<UsdtCircleColorful />}
-							value={BigInt(price) * BigInt(1e6)}
+							value={BigInt(price) * 100_0000n}
 							decimals={6}
 							symbol="USDT"
 						/>
