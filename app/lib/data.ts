@@ -350,6 +350,9 @@ export async function fetchOrdersByCompany(company_id: number) {
 				},
 			],
 		},
+		include: {
+			productType: true,
+		},
 	});
 }
 export async function fetchSellingOrdersByCompany(company_id: number) {
