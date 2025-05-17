@@ -7,7 +7,17 @@ import {
 	fetchUserByEmail,
 } from '@/app/lib/data';
 import { companies } from '@/generated/prisma';
-import { Button, Input, Select, message } from 'antd';
+import {
+	Button,
+	Input,
+	Select,
+	Upload,
+	message,
+	Image,
+	GetProp,
+	UploadProps,
+	UploadFile,
+} from 'antd';
 import { Field, useFormik } from 'formik';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
@@ -19,10 +29,13 @@ import {
 	type Token,
 } from '@ant-design/web3';
 import { ETH, USDT } from '@ant-design/web3-assets/tokens';
+import { LoadingOutlined, PlusOutlined } from '@ant-design/icons';
+
 import * as Yup from 'yup';
 
 const CreateProductPage = () => {
 	const [messageApi, contextHolder] = message.useMessage();
+	const [displayPreview, setDisplayPreview] = useState(false);
 	const session = useSession();
 	const router = useRouter();
 	const formik = useFormik({
@@ -31,11 +44,13 @@ const CreateProductPage = () => {
 			price: null as null | bigint | number,
 			description: '',
 			companyId: null as number | null,
+			coverUrl: null as string | null,
 		},
 		validationSchema: Yup.object({
 			name: Yup.string().required('商品名称不能为空'),
 			price: Yup.number().required('商品价格不能为空'),
 			description: Yup.string(),
+			coverUrl: Yup.string().required('商品图片不能为空'),
 		}),
 		onSubmit: async () => {
 			// 提交交给 form 的 action，不在这里处理
@@ -55,7 +70,7 @@ const CreateProductPage = () => {
 			}
 		},
 	});
-
+	const [fileList, setFileList] = useState<UploadFile[]>([]);
 	const [companies, setCompanies] = useState<null | companies[]>(null);
 	useEffect(() => {
 		fetchCompanies().then((res) => {
@@ -89,6 +104,67 @@ const CreateProductPage = () => {
 					{formik.touched.name && formik.errors.name ? (
 						<div className="text-red-500 text-sm mt-1">
 							{formik.errors.name}
+						</div>
+					) : null}
+				</div>
+
+				<div>
+					<label className="block mb-2 font-medium">商品图片</label>
+					<Upload
+						listType="picture-card"
+						accept="image/*"
+						maxCount={1}
+						fileList={fileList}
+						beforeUpload={(file) => {
+							return new Promise((res, rej) => {
+								const reader = new FileReader();
+								reader.readAsDataURL(file);
+								reader.onload = () => {
+									const base64Url = reader.result;
+									formik.setFieldValue('coverUrl', base64Url);
+									res(base64Url as string);
+								};
+								reader.onerror = rej;
+							});
+						}}
+						onChange={({ fileList }) => {
+							fileList.forEach((f) => {
+								f.status = 'done';
+								f.url = formik.values.coverUrl!;
+							});
+							setFileList(fileList);
+						}}
+						showUploadList={true}
+						onPreview={() => {
+							setDisplayPreview(true);
+						}}
+						onRemove={() => {
+							setFileList([]);
+							formik.setFieldValue('coverUrl', null);
+						}}
+					>
+						{fileList.length < 1 && (
+							<button className="border-none bg-transparent block">
+								<PlusOutlined />
+								<div className="mt-2">上传图片</div>
+							</button>
+						)}
+					</Upload>
+					{displayPreview && (
+						<Image
+							wrapperStyle={{ display: 'none' }}
+							preview={{
+								visible: displayPreview,
+								onVisibleChange: (visible) =>
+									setDisplayPreview(visible),
+								afterOpenChange: (visible) => !visible,
+							}}
+							src={formik.values.coverUrl!}
+						/>
+					)}
+					{formik.errors.coverUrl ? (
+						<div className="text-red-500 text-sm mt-1">
+							{formik.errors.coverUrl}
 						</div>
 					) : null}
 				</div>

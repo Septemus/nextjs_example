@@ -25,6 +25,7 @@ import {
 	transferUSDT,
 	updateProductStatus,
 } from './contract-actions';
+import { pinata, uploadFile } from './ipfs-action';
 const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' });
 
 const FormSchema = z.object({
@@ -249,9 +250,16 @@ export async function createProductType(p: {
 	description: string;
 	companyId: number;
 	price: bigint | number;
+	coverUrl: string | undefined;
 }) {
+	const cid = await uploadFile(p.coverUrl);
+	console.log('this is the created file cid:', cid);
+	p.coverUrl = undefined;
 	await prisma.product_types.create({
-		data: p,
+		data: {
+			...p,
+			coverCid: cid,
+		},
 	});
 }
 

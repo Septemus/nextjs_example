@@ -75,7 +75,7 @@ model product_types {
   id            Int           @id @default(autoincrement())
   name          String        // 商品名称
   description   String?       // 商品描述
-  coverUrl      String?       // 商品图片链接
+  coverCid      String?       // 商品图片链接
   price         BigInt           @default(999999)
 
   companyId     Int
