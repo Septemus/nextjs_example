@@ -47,6 +47,7 @@ model users {
   ownedProducts   products[] @relation("owned_products")   // 🔥加这行
 
   buyOrders     orders[]     @relation("buy_orders") // 新增：我下过的订单
+  sellOrders     orders[]     @relation("sell_orders") // 新增：我下过的订单
 }
 
 model companies {
@@ -114,6 +115,7 @@ enum OrderStatus {
 model orders {
   id              Int           @id @default(autoincrement())
   buyerId         String        @db.Uuid
+  sellerId        String?        @db.Uuid
   productTypeId   Int
   quantity        Int
   totalPrice      BigInt
@@ -128,6 +130,7 @@ model orders {
   createdAt       DateTime      @default(now())
 
   buyer           users         @relation("buy_orders",fields: [buyerId], references: [id], onUpdate: Cascade)
+  seller           users?         @relation("sell_orders",fields: [sellerId], references: [id], onUpdate: Cascade)
   productType     product_types @relation("orders",fields: [productTypeId], references: [id], onUpdate: Cascade)
   order_items order_items[] @relation("order_items")
 }

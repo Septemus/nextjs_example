@@ -250,6 +250,9 @@ export async function fetchUserByEmail(email: string) {
 		where: {
 			email,
 		},
+		include: {
+			foundedCompany: true,
+		},
 	});
 }
 
@@ -319,4 +322,53 @@ export async function fetchProductIsOnChain(
 	serialNumber: string,
 ): Promise<boolean> {
 	return await detectIsOnChain(serialNumber);
+}
+export async function fetchOrdersByCompany(company_id: number) {
+	return await prisma.orders.findMany({
+		where: {
+			OR: [
+				{
+					seller: {
+						OR: [
+							{
+								companiesId: company_id,
+							},
+							{
+								foundedCompany: {
+									some: {
+										id: company_id,
+									},
+								},
+							},
+						],
+					},
+				},
+				{
+					buyer: {
+						companiesId: company_id,
+					},
+				},
+			],
+		},
+	});
+}
+export async function fetchSellingOrdersByCompany(company_id: number) {
+	return await prisma.orders.findMany({
+		where: {
+			seller: {
+				OR: [
+					{
+						companiesId: company_id,
+					},
+					{
+						foundedCompany: {
+							some: {
+								id: company_id,
+							},
+						},
+					},
+				],
+			},
+		},
+	});
 }
