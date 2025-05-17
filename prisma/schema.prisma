@@ -92,7 +92,6 @@ model products {
   createdAt         DateTime      @default(now())
 
   typeId            Int
-  price             BigInt           @default(999999)
   type              product_types @relation("type_to_products", fields: [typeId], references: [id], onUpdate: Cascade)
 
   creatorId         String        @db.Uuid
@@ -126,6 +125,7 @@ model orders {
   shippingOriginPersonName String?
   shippingOriginPhoneNumber String?
   shippingExpressNumber String?
+  lockedPrice BigInt
   status          OrderStatus   @default(PENDING)
   createdAt       DateTime      @default(now())
 
