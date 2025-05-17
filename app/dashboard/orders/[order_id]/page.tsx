@@ -57,7 +57,7 @@ export default async function OrderDetailPage(props: {
 				<p className="text-xl font-bold">
 					<ClientCryptoPrice
 						icon={<UsdtCircleColorful />}
-						value={order.productType.price * 100_0000n}
+						value={order.totalPrice * 100_0000n}
 						decimals={6}
 						symbol="USDT"
 					/>
