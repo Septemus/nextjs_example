@@ -25,7 +25,7 @@ import {
 	transferUSDT,
 	updateProductStatus,
 } from './contract-actions';
-import { pinata, uploadFile } from './ipfs-action';
+import { uploadFile, getFileByCid, pinata } from './ipfs-action';
 const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' });
 
 const FormSchema = z.object({
@@ -239,7 +239,6 @@ export async function createProduct(p: {
 	creatorId: string;
 	status: ProductStatus;
 	typeId: number;
-	price: number | bigint;
 }) {
 	await prisma.products.create({
 		data: p,
@@ -262,6 +261,36 @@ export async function createProductType(p: {
 		},
 	});
 }
+export async function updateProductType(p: {
+	id: number;
+	name: string;
+	description: string;
+	companyId: number;
+	price: bigint | number;
+	coverUrl: string | undefined;
+}) {
+	const cover = await getFileByCid(p.coverUrl);
+	if (!cover) {
+		const cid = await uploadFile(p.coverUrl);
+		await prisma.product_types.update({
+			where: {
+				id: p.id,
+			},
+			data: {
+				coverCid: cid,
+			},
+		});
+	}
+	p.coverUrl = undefined;
+	await prisma.product_types.update({
+		where: {
+			id: p.id,
+		},
+		data: {
+			...p,
+		},
+	});
+}
 
 export async function createOrder(o: {
 	product_type: product_types;
@@ -272,6 +301,7 @@ export async function createOrder(o: {
 		totalPrice: number;
 		phoneNumber: string;
 		buyerId: string;
+		lockedPrice: bigint;
 	};
 }) {
 	const selectedProducts = await prisma.products.findMany({

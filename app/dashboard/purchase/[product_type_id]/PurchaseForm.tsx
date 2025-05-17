@@ -3,7 +3,8 @@
 import { createOrder } from '@/app/lib/actions';
 import { fetchUserByEmail } from '@/app/lib/data';
 import ClientCryptoPrice from '@/app/ui/components/ClientCryptoPrice';
-import { abi, contractAddress, platformWalletAddr } from '@/contracts';
+// import { abi, contractAddress, platformWalletAddr } from '@/contracts/index';
+import * as contractsRelated from '@/contracts/index';
 import { product_types, products } from '@/generated/prisma';
 import { UsdtCircleColorful } from '@ant-design/web3-icons';
 import { Button, Input, InputNumber, message } from 'antd';
@@ -32,6 +33,7 @@ export default function ProductPurchaseForm({
 			recipientName: '',
 			phoneNumber: '',
 			buyerId: '',
+			lockedPrice: product_type.price,
 		},
 		validationSchema: Yup.object({
 			quantity: Yup.number()
@@ -46,10 +48,13 @@ export default function ProductPurchaseForm({
 		}),
 		onSubmit: (values) => {
 			writeContractAsync({
-				address: contractAddress.USDT as `0x${string}`,
-				abi: abi.USDT.abi,
+				address: contractsRelated.contractAddress.USDT as `0x${string}`,
+				abi: contractsRelated.abi.USDT.abi,
 				functionName: 'transfer',
-				args: [platformWalletAddr, parseUnits(`${totalCost}`, 18)],
+				args: [
+					contractsRelated.platformWalletAddr,
+					parseUnits(`${totalCost}`, 18),
+				],
 			})
 				.then(() => {
 					return createOrder({

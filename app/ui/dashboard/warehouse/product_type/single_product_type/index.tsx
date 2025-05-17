@@ -20,13 +20,15 @@ import {
 } from 'antd';
 import { Field, useFormik } from 'formik';
 import { useSession } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { CryptoInput } from '@ant-design/web3';
 import { USDT } from '@ant-design/web3-assets/tokens';
 import { PlusOutlined } from '@ant-design/icons';
 
 import * as Yup from 'yup';
+import { parseUnits } from 'viem';
+import { randomUUID } from 'crypto';
 
 const SingleProductTypeForm: React.FC<{
 	product_type?: product_types;
@@ -37,9 +39,11 @@ const SingleProductTypeForm: React.FC<{
 	const [messageApi, contextHolder] = message.useMessage();
 	const [displayPreview, setDisplayPreview] = useState(false);
 	const session = useSession();
+	const pathname = usePathname();
 	const router = useRouter();
 	const formik = useFormik({
 		initialValues: {
+			id: product_type?.id,
 			name: product_type?.name ?? '',
 			price: product_type?.price ?? (null as null | bigint | number),
 			description: product_type?.description ?? '',
@@ -85,11 +89,19 @@ const SingleProductTypeForm: React.FC<{
 				});
 			}
 		}
+		if (product_type?.coverCid) {
+			setFileList([
+				{
+					url: `/api/pinita/file?cid=${product_type?.coverCid}`,
+					uid: '0',
+					name: 'cover',
+				},
+			]);
+		}
 	}, []);
 	return (
-		<div className="p-8">
+		<div>
 			{contextHolder}
-			<h1 className="text-2xl font-bold mb-6">新增商品种类</h1>
 			<form
 				onSubmit={formik.handleSubmit} // 表单提交目标
 				className="max-w-xl space-y-4"
@@ -102,6 +114,7 @@ const SingleProductTypeForm: React.FC<{
 						onChange={formik.handleChange}
 						onBlur={formik.handleBlur}
 						placeholder="请输入商品名称"
+						disabled={pathname.includes('update')}
 					/>
 					{formik.touched.name && formik.errors.name ? (
 						<div className="text-red-500 text-sm mt-1">
@@ -202,6 +215,11 @@ const SingleProductTypeForm: React.FC<{
 						disabled
 						value={{
 							token: USDT,
+							amount: parseUnits(
+								formik.values.price?.toString() ?? '0',
+								6,
+							),
+							inputString: formik.values.price?.toString(),
 						}}
 						onChange={(value) => {
 							console.log(value);
@@ -223,13 +241,35 @@ const SingleProductTypeForm: React.FC<{
 						</div>
 					) : null}
 				</div>
+				{pathname.includes('update') ? (
+					<Button
+						variant="solid"
+						color="green"
+						htmlType="submit"
+						className="mr-4"
+					>
+						修改
+					</Button>
+				) : (
+					<Button type="primary" htmlType="submit" className="mr-4">
+						提交
+					</Button>
+				)}
 
-				<Button type="primary" htmlType="submit" className="mr-4">
-					提交
-				</Button>
 				<Button
 					htmlType="button"
-					onClick={() => formik.resetForm()} // ✨ 直接清空表单
+					onClick={() => {
+						formik.resetForm();
+						if (product_type?.coverCid) {
+							setFileList([
+								{
+									url: `/api/pinita/file?cid=${product_type?.coverCid}`,
+									uid: '0',
+									name: 'cover',
+								},
+							]);
+						}
+					}} // ✨ 直接清空表单
 					className="mr-4"
 				>
 					重置

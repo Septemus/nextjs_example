@@ -222,13 +222,14 @@ const ProductTable: React.FC<ProductTableProps> = ({
 									删除
 								</Button>
 							</Popconfirm>
-							<Button
-								variant="solid"
-								color="green"
+							<Link
+								href={`/dashboard/product_type/update/${id}`}
 								className="mr-2"
 							>
-								修改
-							</Button>
+								<Button variant="solid" color="green">
+									修改
+								</Button>
+							</Link>
 						</>
 					);
 				}}
