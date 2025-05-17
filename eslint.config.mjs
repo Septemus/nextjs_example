@@ -26,6 +26,7 @@ export default defineConfig([
 			'@typescript-eslint/no-require-imports': 'off',
 			'@typescript-eslint/no-explicit-any': 'warn',
 			'@typescript-eslint/no-non-null-asserted-optional-chain': 'warn',
+			'react/prop-types': 'off',
 		},
 	},
 	eslintPluginPrettierRecommended,
