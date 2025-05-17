@@ -41,7 +41,6 @@ export default function CreateProductForm({
 			status: ProductStatus.MANUFACTURING,
 			currentOwnerId: '',
 			creatorId: '',
-			price: product_type.price as null | number | bigint,
 		},
 		validationSchema: Yup.object({
 			serialNumber: Yup.string().required('序列号不能为空'),
