@@ -18,9 +18,10 @@ export default function OrdersItemTable({
 		},
 		{
 			title: '商品价格',
-			dataIndex: 'price',
-			key: 'price',
-			render: (price: number) => {
+			dataIndex: 'lockedPrice',
+			key: 'lockedPrice',
+			render: (price: bigint | undefined) => {
+				price = order.lockedPrice!;
 				return (
 					<div>
 						<ClientCryptoPrice

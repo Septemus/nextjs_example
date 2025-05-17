@@ -29,8 +29,8 @@ const ProductTable: React.FC<OrderTableProps> = ({ orders }) => {
 		},
 		{
 			title: '商品价格',
-			dataIndex: 'price',
-			key: 'price',
+			dataIndex: 'lockedPrice',
+			key: 'lockedPrice',
 			render: (price: number) => {
 				return (
 					<div>
