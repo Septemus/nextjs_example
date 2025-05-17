@@ -4,6 +4,9 @@ import { Suspense } from 'react';
 import { LatestInvoicesSkeleton, CardsSkeleton } from '@/app/ui/skeletons';
 import { Metadata } from 'next';
 import DashInfo from './dash-info';
+import ProductTableWrapper from '../warehouse/product-table-wrapper';
+import OrderTableWrapper from '../orders/order-table-wrapper';
+import { Skeleton } from 'antd';
 
 export const metadata: Metadata = {
 	title: 'Overview',
@@ -21,9 +24,16 @@ export default async function Page() {
 					<DashInfo />
 				</Suspense>
 			</div>
-			<div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-4 lg:grid-cols-8">
-				<Suspense fallback={<LatestInvoicesSkeleton />}>
-					<LatestInvoices />
+			<div className="mt-6">
+				<h2
+					className={`${lusitana.className} mb-4 text-xl md:text-2xl`}
+				>
+					最新订单
+				</h2>
+				<Suspense fallback={<Skeleton />}>
+					<div>
+						<OrderTableWrapper take={10} />
+					</div>
 				</Suspense>
 			</div>
 		</main>

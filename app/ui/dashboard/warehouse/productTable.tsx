@@ -132,11 +132,6 @@ const ProductTable: React.FC<ProductTableProps> = ({
 	return (
 		<>
 			{contextHolder}
-			<div className="flex justify-end mb-4">
-				<Link href="/dashboard/product_type/create">
-					<Button type="primary">新增商品</Button>
-				</Link>
-			</div>
 			<FilterTable
 				columns={columns}
 				data={product_types}

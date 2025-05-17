@@ -2,7 +2,7 @@ import { auth } from '@/auth';
 import { fetchOrdersByCompany, fetchUserByEmail } from '@/app/lib/data';
 import { orders, product_types } from '@/generated/prisma';
 import OrderTable from '@/app/ui/dashboard/orders/OrderTable';
-export default async function OrderTableWrapper() {
+export default async function OrderTableWrapper({ take }: { take?: number }) {
 	const session = await auth();
 	if (!session?.user?.email) {
 		throw new Error('未登录或 session 信息不完整');
@@ -13,6 +13,9 @@ export default async function OrderTableWrapper() {
 	let orders: (orders & { productType: product_types })[] = [];
 	if (company_id) {
 		orders = await fetchOrdersByCompany(company_id);
+	}
+	if (take) {
+		orders = orders.slice(0, take);
 	}
 	return <OrderTable orders={orders} />;
 }

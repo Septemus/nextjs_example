@@ -2,7 +2,7 @@ import prisma from '@/app/lib/prisma';
 import ProductTable from '@/app/ui/dashboard/warehouse/productTable';
 import { auth } from '@/auth';
 import { fetchProductIsOnChain } from '@/app/lib/data';
-export default async function ProductTableWrapper() {
+export default async function ProductTableWrapper({ take }: { take?: number }) {
 	const session = await auth();
 	if (!session?.user?.email) {
 		throw new Error('未登录或 session 信息不完整');
@@ -12,7 +12,7 @@ export default async function ProductTableWrapper() {
 		where: { email: session.user.email },
 		select: { foundedCompany: true, companiesId: true },
 	});
-	const product_types = await prisma.product_types.findMany({
+	let product_types = await prisma.product_types.findMany({
 		where: {
 			companyId: user?.companiesId || user?.foundedCompany[0].id!,
 		},
@@ -20,6 +20,9 @@ export default async function ProductTableWrapper() {
 			products: true,
 		},
 	}); // 从数据库取商品列表
+	if (take) {
+		product_types = product_types.slice(0, take);
+	}
 	const productId_isOnChain = new Map<number, boolean>();
 	for (const pt of product_types) {
 		for (const p of pt.products) {
