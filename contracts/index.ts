@@ -11,7 +11,7 @@ export const contractAddress = {
 	USDT: '0xfB3b19FA57D76379381662C3fffc1f61F63A5ab2',
 };
 export const platformWalletAddr = process.env
-	.PLATFORM_WALLET_ADDR as `0x${string}`;
+	.NEXT_PUBLIC_PLATFORM_WALLET_ADDR as `0x${string}`;
 export const platformWalletPrivateKey = process.env
 	.PLATFORM_WALLET_PRIVATE_KEY as `0x${string}`;
 export const createPlatformWallet = () => {
