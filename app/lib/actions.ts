@@ -16,11 +16,19 @@ import {
 	Role,
 } from '@/generated/prisma';
 import { fetchOrderById } from './data';
-import { getContract, parseUnits, RpcRequestError, verifyMessage } from 'viem';
+import {
+	getContract,
+	InvalidParameterError,
+	parseUnits,
+	ResourceNotFoundRpcError,
+	RpcRequestError,
+	verifyMessage,
+} from 'viem';
 import {
 	getProductBySerialNumber,
 	ProductStatusSolidity,
 	PublishProductOnChain,
+	recordOrder,
 	transferOwnership,
 	transferUSDT,
 	updateProductStatus,
@@ -292,6 +300,7 @@ export async function createOrder(o: {
 	const selectedProducts = await prisma.products.findMany({
 		where: {
 			typeId: o.product_type.id,
+			status: ProductStatus.MANUFACTURING,
 		},
 		take: o.order_info.quantity,
 	});
@@ -440,8 +449,29 @@ export async function applyForReceivingUSDT(
 				status: OrderStatus.PAID,
 			},
 		});
+		await recordOrderOnChain(order_id);
 		return txHash;
 	} else {
 		throw new AuthError('signature verification failed');
+	}
+}
+async function recordOrderOnChain(id: number) {
+	const order = await fetchOrderById(id);
+	if (order) {
+		await recordOrder([
+			BigInt(order.id),
+			order?.buyer.name,
+			order?.seller?.name!,
+			order.shippingOriginAddress!,
+			order.shippingAddress,
+			order.order_items.map((oi) => {
+				return oi.product.serialNumber;
+			}),
+			BigInt(order.quantity),
+			order.lockedPrice,
+			order.totalPrice,
+		]);
+	} else {
+		throw new Error('order not found');
 	}
 }

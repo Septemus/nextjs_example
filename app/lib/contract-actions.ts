@@ -1,10 +1,23 @@
 import { abi, contractAddress, createPlatformWallet } from '@/contracts';
-import { getContract, parseUnits } from 'viem';
+import OrderRegistry from '@/contracts/abi/OrderRegistry';
+import {
+	BaseError,
+	ContractFunctionExecutionError,
+	ContractFunctionRevertedError,
+	encodeFunctionData,
+	getContract,
+	parseUnits,
+} from 'viem';
 
 const platformWallet = createPlatformWallet();
 const productRegistryContract = getContract({
 	address: contractAddress.ProductRegistry as `0x${string}`,
 	abi: abi.ProductRegistry.abi,
+	client: platformWallet,
+});
+const orderRegistryContract = getContract({
+	address: contractAddress.OrderRegistry as `0x${string}`,
+	abi: abi.OrderRegistry.abi,
 	client: platformWallet,
 });
 const USDTContract = getContract({
@@ -24,6 +37,15 @@ export async function getProductBySerialNumber(searialNumber: string) {
 	return await productRegistryContract.read.getProductBySerialNumber([
 		searialNumber,
 	]);
+}
+export async function productExists(searialNumber: string) {
+	const ret = await productRegistryContract.read.existsBySerial([
+		searialNumber,
+	]);
+	console.log(`serial number:${searialNumber}`);
+	console.log(`exists:${ret}`);
+
+	return ret;
 }
 export async function PublishProductOnChain(
 	args: Parameters<typeof productRegistryContract.write.registerProduct>[0],
@@ -72,6 +94,38 @@ export async function detectIsOnChain(serialNumber: string) {
 		]);
 		return true;
 	} catch (err) {
+		console.error(err);
 		return false;
+	}
+}
+export async function recordOrder(
+	order: Parameters<typeof orderRegistryContract.write.createOrder>[0],
+) {
+	console.log('记录订单中...');
+	// const txHash = await orderRegistryContract.write.createOrder(order);
+	try {
+		const { request } =
+			await orderRegistryContract.simulate.createOrder(order);
+		const txHash = await platformWallet.writeContract(request);
+		console.log('记录订单成功', txHash);
+		return txHash;
+	} catch (err) {
+		if (err instanceof BaseError) {
+			console.error('is base error');
+			const revertError = err.walk(
+				(err) => err instanceof ContractFunctionRevertedError,
+			);
+			if (revertError instanceof ContractFunctionRevertedError) {
+				const errorName = revertError.data?.errorName ?? '';
+				// do something with `errorName`
+				console.error('custom error occured:', errorName);
+				console.error('custom error args:', revertError.data?.args);
+			} else {
+				console.error('not ContractFunctionRevertedError');
+				console.error(err);
+			}
+		} else {
+			console.error('not base error');
+		}
 	}
 }
