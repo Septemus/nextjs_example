@@ -3,7 +3,7 @@ import ClientCryptoPrice from '@/app/ui/components/ClientCryptoPrice';
 import { UsdtCircleColorful } from '@/app/ui/components/ClientIcons';
 import { auth } from '@/auth';
 import { fetchSellingOrdersByCompany, fetchUserByEmail } from '@/app/lib/data';
-import { orders } from '@/generated/prisma';
+import { orders, OrderStatus } from '@/generated/prisma';
 import { parseUnits } from 'viem';
 export default async function DashInfo() {
 	const session = await auth();
@@ -16,6 +16,9 @@ export default async function DashInfo() {
 	const company_id = user?.companiesId || user?.foundedCompany[0].id;
 	if (company_id) {
 		orders = await fetchSellingOrdersByCompany(company_id);
+		orders = orders.filter((o) => {
+			return o.status === OrderStatus.PAID;
+		});
 	}
 	const totalSalesCapital = orders.reduce((prev, cur) => {
 		return prev + cur.totalPrice;
