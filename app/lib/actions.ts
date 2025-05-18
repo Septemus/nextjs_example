@@ -249,42 +249,27 @@ export async function createProductType(p: {
 	description: string;
 	companyId: number;
 	price: bigint | number;
-	coverUrl: string | undefined;
+	coverCid: string | undefined;
 }) {
-	const cid = await uploadFile(p.coverUrl);
-	console.log('this is the created file cid:', cid);
-	p.coverUrl = undefined;
 	await prisma.product_types.create({
 		data: {
 			...p,
-			coverCid: cid,
 		},
 	});
 }
-export async function updateProductType(p: {
-	id: number;
-	name: string;
-	description: string;
-	companyId: number;
-	price: bigint | number;
-	coverUrl: string | undefined;
-}) {
-	const cover = await getFileByCid(p.coverUrl);
-	if (!cover) {
-		const cid = await uploadFile(p.coverUrl);
-		await prisma.product_types.update({
-			where: {
-				id: p.id,
-			},
-			data: {
-				coverCid: cid,
-			},
-		});
-	}
-	p.coverUrl = undefined;
+export async function updateProductType(
+	id: number,
+	p: {
+		name: string;
+		description: string;
+		companyId: number;
+		price: bigint | number;
+		coverCid: string | undefined;
+	},
+) {
 	await prisma.product_types.update({
 		where: {
-			id: p.id,
+			id,
 		},
 		data: {
 			...p,

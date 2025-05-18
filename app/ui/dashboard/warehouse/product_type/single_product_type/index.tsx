@@ -1,6 +1,6 @@
 'use client';
 
-import { createProductType } from '@/app/lib/actions';
+import { createProductType, updateProductType } from '@/app/lib/actions';
 import {
 	fetchCompanies,
 	fetchCompanyOfUser,
@@ -28,7 +28,6 @@ import { PlusOutlined } from '@ant-design/icons';
 
 import * as Yup from 'yup';
 import { parseUnits } from 'viem';
-import { randomUUID } from 'crypto';
 
 const SingleProductTypeForm: React.FC<{
 	product_type?: product_types;
@@ -48,13 +47,13 @@ const SingleProductTypeForm: React.FC<{
 			price: product_type?.price ?? (null as null | bigint | number),
 			description: product_type?.description ?? '',
 			companyId: product_type?.companyId ?? (null as number | null),
-			coverUrl: product_type?.coverCid ?? (null as string | null),
+			coverCid: product_type?.coverCid ?? (null as string | null),
 		},
 		validationSchema: Yup.object({
 			name: Yup.string().required('商品名称不能为空'),
 			price: Yup.number().required('商品价格不能为空'),
 			description: Yup.string(),
-			coverUrl: Yup.string().required('商品图片不能为空'),
+			coverCid: Yup.string().required('商品图片不能为空'),
 		}),
 		onSubmit: async () => {
 			// 提交交给 form 的 action，不在这里处理
@@ -62,14 +61,14 @@ const SingleProductTypeForm: React.FC<{
 				await handleSubmit(formik.values as any);
 				await messageApi.open({
 					type: 'success',
-					content: '添加商品成功',
+					content: '商品操作成功',
 				});
 				router.replace('/dashboard/warehouse');
 			} catch (err) {
 				console.error(err);
 				messageApi.open({
 					type: 'error',
-					content: '添加商品失败',
+					content: '商品操作失败',
 				});
 			}
 		},
@@ -89,16 +88,18 @@ const SingleProductTypeForm: React.FC<{
 				});
 			}
 		}
-		if (product_type?.coverCid) {
+	}, []);
+	useEffect(() => {
+		if (formik.values.coverCid) {
 			setFileList([
 				{
-					url: `/api/pinita/file?cid=${product_type?.coverCid}`,
+					url: `/api/pinita/file?cid=${formik.values.coverCid}`,
 					uid: '0',
 					name: 'cover',
 				},
 			]);
 		}
-	}, []);
+	}, [formik.values.coverCid]);
 	return (
 		<div>
 			{contextHolder}
@@ -128,34 +129,22 @@ const SingleProductTypeForm: React.FC<{
 					<Upload
 						listType="picture-card"
 						accept="image/*"
+						action={`/api/pinita/file`}
 						maxCount={1}
 						fileList={fileList}
-						beforeUpload={(file) => {
-							return new Promise((res, rej) => {
-								const reader = new FileReader();
-								reader.readAsDataURL(file);
-								reader.onload = () => {
-									const base64Url = reader.result;
-									formik.setFieldValue('coverUrl', base64Url);
-									res(base64Url as string);
-								};
-								reader.onerror = rej;
-							});
-						}}
-						onChange={({ fileList }) => {
-							fileList.forEach((f) => {
-								f.status = 'done';
-								f.url = formik.values.coverUrl!;
-							});
-							setFileList(fileList);
+						onChange={(info) => {
+							if (info.file.status === 'done') {
+								const res = info.file.response;
+								formik.setFieldValue('coverCid', res.cid);
+							}
+							setFileList(info.fileList);
 						}}
 						showUploadList={true}
 						onPreview={() => {
 							setDisplayPreview(true);
 						}}
 						onRemove={() => {
-							setFileList([]);
-							formik.setFieldValue('coverUrl', null);
+							formik.setFieldValue('coverCid', null);
 						}}
 					>
 						{fileList.length < 1 && (
@@ -174,12 +163,12 @@ const SingleProductTypeForm: React.FC<{
 									setDisplayPreview(visible),
 								afterOpenChange: (visible) => !visible,
 							}}
-							src={formik.values.coverUrl!}
+							src={`/api/pinita/file?cid=${formik.values.coverCid}`}
 						/>
 					)}
-					{formik.errors.coverUrl ? (
+					{formik.errors.coverCid ? (
 						<div className="text-red-500 text-sm mt-1">
-							{formik.errors.coverUrl}
+							{formik.errors.coverCid}
 						</div>
 					) : null}
 				</div>
@@ -260,15 +249,6 @@ const SingleProductTypeForm: React.FC<{
 					htmlType="button"
 					onClick={() => {
 						formik.resetForm();
-						if (product_type?.coverCid) {
-							setFileList([
-								{
-									url: `/api/pinita/file?cid=${product_type?.coverCid}`,
-									uid: '0',
-									name: 'cover',
-								},
-							]);
-						}
 					}} // ✨ 直接清空表单
 					className="mr-4"
 				>

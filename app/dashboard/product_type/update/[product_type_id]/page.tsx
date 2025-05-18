@@ -1,3 +1,4 @@
+import { updateProductType } from '@/app/lib/actions';
 import { fetchProductTypeById } from '@/app/lib/data';
 import SingleProductTypeForm from '@/app/ui/dashboard/warehouse/product_type/single_product_type';
 import { notFound } from 'next/navigation';
@@ -16,8 +17,9 @@ export default async function Page(props: {
 			<h1 className="text-2xl font-bold mb-6">修改商品种类信息</h1>
 			<SingleProductTypeForm
 				product_type={product_type}
-				handleSubmit={async () => {
+				handleSubmit={async (form) => {
 					'use server';
+					updateProductType(product_type.id, form);
 				}}
 			/>
 		</div>
