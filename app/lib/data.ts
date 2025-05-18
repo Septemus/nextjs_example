@@ -409,3 +409,21 @@ export async function fetchSellingOrdersByCompany(company_id: number) {
 		},
 	});
 }
+export async function fetchOnChainNumber(
+	product_types: NonNullable<
+		Awaited<ReturnType<typeof fetchUserProductTypes>>
+	>,
+) {
+	const onChainNumber = new Map<number, number>();
+	for (const pt of product_types) {
+		onChainNumber.set(pt.id, 0);
+		for (const p of pt.products) {
+			const isOnChain = await fetchProductIsOnChain(p.serialNumber);
+			if (isOnChain) {
+				const oldNumber = await onChainNumber.get(pt.id);
+				onChainNumber.set(pt.id, oldNumber! + 1);
+			}
+		}
+	}
+	return onChainNumber;
+}

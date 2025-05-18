@@ -1,4 +1,5 @@
 import {
+	fetchOnChainNumber,
 	fetchProductIsOnChain,
 	fetchProductTypes,
 	fetchUserByEmail,
@@ -7,6 +8,7 @@ import {
 import { auth } from '@/auth';
 import { Card, Empty, Spin } from 'antd';
 import Meta from 'antd/es/card/Meta';
+import Link from 'next/link';
 export default async function TracingCards() {
 	const session = await auth();
 	if (!session?.user?.email) {
@@ -15,49 +17,45 @@ export default async function TracingCards() {
 	// 根据用户邮箱查公司 ID
 	const user = await fetchUserByEmail(session.user.email);
 	const product_types = await fetchUserProductTypes(user!);
-	const onChainNumber = new Map<number, number>();
-	for (const pt of product_types) {
-		for (const p of pt.products) {
-			const isOnChain = await fetchProductIsOnChain(p.serialNumber);
-			if (isOnChain) {
-				const oldNumber = await onChainNumber.get(pt.id);
-				onChainNumber.set(pt.id, oldNumber ? oldNumber + 1 : 1);
-			}
-		}
-	}
+	const onChainNumber = await fetchOnChainNumber(product_types);
 	return (
 		<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
 			{product_types.map((pt) => {
 				return (
-					<Card
-						hoverable
+					<Link
 						key={pt.id}
-						style={{ width: 240 }}
-						cover={
-							<div className="h-44 pt-1">
-								<img
-									className="max-h-44 block mx-auto"
-									alt={pt.name}
-									src={`/api/pinita/file?cid=${pt.coverCid}`}
-								/>
-							</div>
-						}
+						href={`/dashboard/tracing/product_type/${pt.id}`}
 					>
-						<Meta
-							title={
-								<p className="text-center truncate">
-									{pt.name}
-								</p>
-							}
-							description={
-								<div className="text-center">
-									<span>
-										上链数量:{onChainNumber.get(pt.id) ?? 0}
-									</span>
+						<Card
+							hoverable
+							style={{ width: 240 }}
+							cover={
+								<div className="h-44 pt-1">
+									<img
+										className="max-h-44 block mx-auto"
+										alt={pt.name}
+										src={`/api/pinita/file?cid=${pt.coverCid}`}
+									/>
 								</div>
 							}
-						></Meta>
-					</Card>
+						>
+							<Meta
+								title={
+									<p className="text-center truncate">
+										{pt.name}
+									</p>
+								}
+								description={
+									<div className="text-center">
+										<span>
+											上链数量:
+											{onChainNumber.get(pt.id)}
+										</span>
+									</div>
+								}
+							></Meta>
+						</Card>
+					</Link>
 				);
 			})}
 		</div>
