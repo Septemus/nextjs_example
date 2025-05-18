@@ -1,7 +1,7 @@
 'use client';
 
 import { createOrder } from '@/app/lib/actions';
-import { fetchUserByEmail } from '@/app/lib/data';
+import { fetchProductTypeById, fetchUserByEmail } from '@/app/lib/data';
 import ClientCryptoPrice from '@/app/ui/components/ClientCryptoPrice';
 // import { abi, contractAddress, platformWalletAddr } from '@/contracts/index';
 import * as contractsRelated from '@/contracts/index';
@@ -19,7 +19,7 @@ import * as Yup from 'yup';
 export default function ProductPurchaseForm({
 	product_type,
 }: {
-	product_type: product_types & { products: products[] };
+	product_type: NonNullable<Awaited<ReturnType<typeof fetchProductTypeById>>>;
 }) {
 	const { writeContractAsync, isPending } = useWriteContract();
 	const [messageApi, contextHolder] = message.useMessage();
@@ -33,6 +33,7 @@ export default function ProductPurchaseForm({
 			recipientName: '',
 			phoneNumber: '',
 			buyerId: '',
+			sellerId: product_type.manufacturerCompany.founderId,
 			lockedPrice: product_type.price,
 		},
 		validationSchema: Yup.object({
