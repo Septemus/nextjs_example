@@ -306,6 +306,7 @@ export async function fetchOrderById(id: number) {
 				},
 			},
 			buyer: true,
+			seller: true,
 			order_items: {
 				include: {
 					product: {
