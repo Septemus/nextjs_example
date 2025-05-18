@@ -1,14 +1,17 @@
 import ProductRegistry from './abi/ProductRegistry';
 import USDT from './abi/USDT';
+import OrderRegistry from './abi/OrderRegistry';
 import { privateKeyToAccount } from 'viem/accounts';
 import { createWalletClient, http } from 'viem';
 export const abi = {
 	ProductRegistry,
 	USDT,
+	OrderRegistry,
 };
 export const contractAddress = {
-	ProductRegistry: '0x77aA9F8c123F45423B6eD740257C26e881d3ebE6',
-	USDT: '0xfB3b19FA57D76379381662C3fffc1f61F63A5ab2',
+	ProductRegistry: process.env.NEXT_PUBLIC_USDT,
+	USDT: process.env.NEXT_PUBLIC_PRODUCT_REGISTRY,
+	OrderRegistry: process.env.NEXT_PUBLIC_ORDER_REGISTRY,
 };
 export const platformWalletAddr = process.env
 	.NEXT_PUBLIC_PLATFORM_WALLET_ADDR as `0x${string}`;
