@@ -34,7 +34,7 @@ export default async function TracingCards() {
 						key={pt.id}
 						style={{ width: 240 }}
 						cover={
-							<div className="h-44">
+							<div className="h-44 pt-1">
 								<img
 									className="max-h-44 block mx-auto"
 									alt={pt.name}
