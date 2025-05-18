@@ -9,8 +9,8 @@ export const abi = {
 	OrderRegistry,
 };
 export const contractAddress = {
-	ProductRegistry: process.env.NEXT_PUBLIC_USDT,
-	USDT: process.env.NEXT_PUBLIC_PRODUCT_REGISTRY,
+	USDT: process.env.NEXT_PUBLIC_USDT,
+	ProductRegistry: process.env.NEXT_PUBLIC_PRODUCT_REGISTRY,
 	OrderRegistry: process.env.NEXT_PUBLIC_ORDER_REGISTRY,
 };
 export const platformWalletAddr = process.env
