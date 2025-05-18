@@ -12,6 +12,7 @@ import {
 import { formatCurrency } from './utils';
 import prisma from './prisma';
 import { detectIsOnChain, productExists } from './contract-actions';
+import { companies, users } from '@/generated/prisma';
 
 const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' });
 
@@ -277,6 +278,38 @@ export async function fetchProductTypeById(id: number) {
 }
 export async function fetchProductTypes() {
 	return await prisma.product_types.findMany({
+		include: {
+			products: true,
+			manufacturerCompany: true,
+		},
+	});
+}
+
+export async function fetchUserProductTypes(
+	u: users & { foundedCompany: companies[] },
+) {
+	return await prisma.product_types.findMany({
+		where: {
+			OR: [
+				{
+					OR: [
+						{
+							companyId: u.companiesId ?? -1,
+						},
+						{
+							companyId: u.foundedCompany[0]?.id,
+						},
+					],
+				},
+				{
+					products: {
+						some: {
+							currentOwnerId: u.id,
+						},
+					},
+				},
+			],
+		},
 		include: {
 			products: true,
 			manufacturerCompany: true,

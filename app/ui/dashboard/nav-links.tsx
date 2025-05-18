@@ -5,6 +5,7 @@ import {
 	DocumentDuplicateIcon,
 	ArchiveBoxArrowDownIcon,
 	BuildingStorefrontIcon,
+	NewspaperIcon,
 } from '@heroicons/react/24/outline';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -28,6 +29,7 @@ const manufacturerLinks = [
 		icon: DocumentDuplicateIcon,
 	},
 	{ name: '客户管理', href: '/dashboard/customers', icon: UserGroupIcon },
+	{ name: '商品溯源', href: '/dashboard/tracing', icon: NewspaperIcon },
 ];
 const distributorLinks = [
 	{ name: '综合数据', href: '/dashboard', icon: HomeIcon },
