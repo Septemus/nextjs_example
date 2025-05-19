@@ -26,7 +26,6 @@ import {
 } from 'viem';
 import {
 	getProductBySerialNumber,
-	ProductStatusSolidity,
 	PublishProductOnChain,
 	recordOrder,
 	transferOwnership,
@@ -34,6 +33,7 @@ import {
 	updateProductStatus,
 } from './contract-actions';
 import { uploadFile, getFileByCid, pinata } from './ipfs-action';
+import { ProductStatusSolidity } from './utils';
 const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' });
 
 const FormSchema = z.object({
@@ -363,6 +363,7 @@ async function publishOnChainIfNot(
 			await getProductBySerialNumber(oi.product.serialNumber);
 		} catch (err) {
 			await PublishProductOnChain([
+				BigInt(oi.productId),
 				order.productType.name,
 				order.productType.description ?? '',
 				oi.product.serialNumber,

@@ -8,6 +8,7 @@ import {
 	getContract,
 	parseUnits,
 } from 'viem';
+import { ProductStatusSolidity } from './utils';
 
 const platformWallet = createPlatformWallet();
 const productRegistryContract = getContract({
@@ -25,13 +26,6 @@ const USDTContract = getContract({
 	abi: abi.USDT.abi,
 	client: platformWallet,
 });
-
-export enum ProductStatusSolidity {
-	MANUFACTURING,
-	DISTRIBUTING,
-	FOR_SALE,
-	SOLD,
-}
 
 export async function getProductBySerialNumber(searialNumber: string) {
 	return await productRegistryContract.read.getProductBySerialNumber([
@@ -128,4 +122,7 @@ export async function recordOrder(
 			console.error('not base error');
 		}
 	}
+}
+export async function getProductOrders(serialNumber: string) {
+	return await productRegistryContract.read.getOrderOfProduct([serialNumber]);
 }
