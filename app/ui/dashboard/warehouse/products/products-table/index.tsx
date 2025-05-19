@@ -1,4 +1,5 @@
 'use client';
+import { ProductStatusToString } from '@/app/lib/utils';
 import { products, ProductStatus } from '@/generated/prisma';
 import { Button, Space, Table } from 'antd';
 import { ReactNode } from 'react';
@@ -24,7 +25,7 @@ export default function ProductsTable({
 					dataIndex: 'manufactureDate',
 					key: 'manufactureDate',
 					render(val: Date) {
-						return val.toISOString();
+						return val.toLocaleString();
 					},
 				},
 				{
@@ -32,7 +33,7 @@ export default function ProductsTable({
 					dataIndex: 'createdAt',
 					key: 'createdAt',
 					render(val: Date) {
-						return val.toISOString();
+						return val.toLocaleString();
 					},
 				},
 				{
@@ -40,13 +41,7 @@ export default function ProductsTable({
 					dataIndex: 'status',
 					key: 'status',
 					render(val: ProductStatus) {
-						const tmp: Record<ProductStatus, string> = {
-							[ProductStatus.MANUFACTURING]: '已生产',
-							[ProductStatus.DISTRIBUTING]: '运输中',
-							[ProductStatus.FOR_SALE]: '销售中',
-							[ProductStatus.SOLD]: '已销售',
-						};
-						return tmp[val];
+						return ProductStatusToString(val);
 					},
 				},
 				{

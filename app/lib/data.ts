@@ -324,6 +324,7 @@ export async function fetchProductById(id: number) {
 		},
 		include: {
 			type: true,
+			currentOwner: true,
 		},
 	});
 }

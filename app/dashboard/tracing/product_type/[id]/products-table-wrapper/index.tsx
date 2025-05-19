@@ -14,7 +14,7 @@ export default function ProductsTableWrapper({
 			products={products}
 			actionArea={(id) => {
 				return (
-					<Link href={``}>
+					<Link href={`/dashboard/tracing/product/${id}`}>
 						<Button variant="solid" color="green">
 							商品追溯
 						</Button>

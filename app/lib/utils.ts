@@ -1,4 +1,15 @@
+import { ProductStatus } from '@/generated/prisma';
 import { Revenue } from './definitions';
+
+export function ProductStatusToString(status: ProductStatus) {
+	const tmp: Record<ProductStatus, string> = {
+		[ProductStatus.MANUFACTURING]: '已生产',
+		[ProductStatus.DISTRIBUTING]: '运输中',
+		[ProductStatus.FOR_SALE]: '销售中',
+		[ProductStatus.SOLD]: '已销售',
+	};
+	return tmp[status];
+}
 
 export const formatCurrency = (amount: number) => {
 	return (amount / 100).toLocaleString('en-US', {
