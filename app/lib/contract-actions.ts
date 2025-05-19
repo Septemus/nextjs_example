@@ -1,3 +1,4 @@
+import 'server-only';
 import { abi, contractAddress, createPlatformWallet } from '@/contracts';
 import OrderRegistry from '@/contracts/abi/OrderRegistry';
 import {
