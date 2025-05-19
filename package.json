@@ -27,6 +27,7 @@
     "zod": "^3.24.3"
   },
   "devDependencies": {
+    "@ant-design/icons": "^6.0.0",
     "@ant-design/nextjs-registry": "^1.0.2",
     "@ant-design/web3": "^1.23.0",
     "@ant-design/web3-icons": "^1.13.0",

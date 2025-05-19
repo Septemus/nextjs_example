@@ -78,6 +78,7 @@ const ProductTable: React.FC<ProductTableProps> = ({
 				abi: abi.ProductRegistry.abi,
 				functionName: 'registerProduct',
 				args: [
+					BigInt(record?.id!),
 					productInput.name,
 					productInput.description,
 					productInput.serialNumber,

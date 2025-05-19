@@ -11,7 +11,12 @@ import {
 } from './definitions';
 import { formatCurrency } from './utils';
 import prisma from './prisma';
-import { detectIsOnChain, productExists } from './contract-actions';
+import {
+	detectIsOnChain,
+	getProductBySerialNumber,
+	getProductOrders,
+	productExists,
+} from './contract-actions';
 import { companies, products, users } from '@/generated/prisma';
 
 const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' });
@@ -339,7 +344,12 @@ export async function fetchOrderById(id: number) {
 					manufacturerCompany: true,
 				},
 			},
-			buyer: true,
+			buyer: {
+				include: {
+					mycompany: true,
+					foundedCompany: true,
+				},
+			},
 			seller: true,
 			order_items: {
 				include: {
@@ -442,4 +452,10 @@ export async function fetchOnChainProducts(
 	);
 	ret = ret.filter((p) => p);
 	return ret as products[];
+}
+export async function fetchProductOrdersOnChain(serialNumber: string) {
+	return await getProductOrders(serialNumber);
+}
+export async function fetchProductOnChain(serialNumber: string) {
+	return await getProductBySerialNumber(serialNumber);
 }

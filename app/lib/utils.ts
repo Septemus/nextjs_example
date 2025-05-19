@@ -22,6 +22,10 @@ export function ProductStatusToString(
 	return tmp[status];
 }
 
+export function BigInt2Date(n: bigint) {
+	return new Date(Number(n));
+}
+
 export const formatCurrency = (amount: number) => {
 	return (amount / 100).toLocaleString('en-US', {
 		style: 'currency',
