@@ -1,10 +1,18 @@
-import { fetchOnChainNumber, fetchProductTypeById } from '@/app/lib/data';
+import {
+	fetchOnChainNumber,
+	fetchOnChainProducts,
+	fetchProductTypeById,
+} from '@/app/lib/data';
 import ClientCryptoPrice from '@/app/ui/components/ClientCryptoPrice';
 import { UsdtCircleColorful } from '@/app/ui/components/ClientIcons';
-import { Descriptions } from 'antd';
+import ProductsTable from '@/app/ui/dashboard/warehouse/products/products-table';
+import { products, ProductStatus } from '@/generated/prisma';
+import { Button, Descriptions, Table } from 'antd';
 import { Image } from 'antd/lib';
+import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { parseUnits } from 'viem';
+import ProductsTableWrapper from './products-table-wrapper';
 export default async function Page(props: { params: Promise<{ id: string }> }) {
 	const params = await props.params;
 	const id = parseInt(params.id);
@@ -13,18 +21,17 @@ export default async function Page(props: { params: Promise<{ id: string }> }) {
 		notFound();
 	}
 	const onChainNumber = await fetchOnChainNumber([product_type]);
+	const onChainProducts = await fetchOnChainProducts(product_type);
 	return (
 		<div className="p-8 space-y-6">
-			<div className="flex flex-col md:flex-row gap-6">
+			<div className="flex flex-col xl:flex-row gap-6">
 				{/* 商品图片 */}
-				<div className="flex-shrink-0 w-full md:w-1/3">
-					<div className="h-72 w-full flex justify-center">
+				<div className="flex-shrink-0 w-full xl:w-1/4">
+					<div className="flex justify-center xl:justify-start w-full">
 						<Image
 							src={`/api/pinita/file?cid=${product_type?.coverCid}`}
 							alt={product_type?.name}
-							className="rounded-2xl shadow-md pt-1"
-							height={'100%'}
-							width={'auto'}
+							className="rounded-2xl shadow-md max-h-72"
 						/>
 					</div>
 				</div>
@@ -64,6 +71,10 @@ export default async function Page(props: { params: Promise<{ id: string }> }) {
 			</div>
 
 			{/* 商品实例表格 */}
+			<div className="mb-6">
+				<h1 className="text-2xl font-bold">上链商品实例</h1>
+			</div>
+			<ProductsTableWrapper products={onChainProducts} />
 		</div>
 	);
 }

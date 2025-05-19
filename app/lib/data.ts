@@ -12,7 +12,7 @@ import {
 import { formatCurrency } from './utils';
 import prisma from './prisma';
 import { detectIsOnChain, productExists } from './contract-actions';
-import { companies, users } from '@/generated/prisma';
+import { companies, products, users } from '@/generated/prisma';
 
 const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' });
 
@@ -426,4 +426,19 @@ export async function fetchOnChainNumber(
 		}
 	}
 	return onChainNumber;
+}
+export async function fetchOnChainProducts(
+	product_type: NonNullable<Awaited<ReturnType<typeof fetchProductTypeById>>>,
+): Promise<products[]> {
+	let ret = await Promise.all(
+		product_type.products.map((p) => {
+			return fetchProductIsOnChain(p.serialNumber).then((onChain) => {
+				if (onChain) {
+					return p;
+				}
+			});
+		}),
+	);
+	ret = ret.filter((p) => p);
+	return ret as products[];
 }
