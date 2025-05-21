@@ -372,7 +372,6 @@ async function publishOnChainIfNot(
 				BigInt(oi.product.createdAt.getTime()),
 				BigInt(order.productType.companyId),
 				order.productType.manufacturerCompany.name,
-				order.productType.price,
 			]);
 		}
 	}

@@ -9,11 +9,13 @@ import { applyForReceivingUSDT } from '@/app/lib/actions';
 import { useState } from 'react';
 import { Address } from '@ant-design/web3';
 import { OrderStatus } from '@/generated/prisma';
+import { useRouter } from 'next/navigation';
 export default function ReceiveMoney({
 	order,
 }: {
 	order: NonNullable<Awaited<ReturnType<typeof fetchOrderById>>>;
 }) {
+	const router = useRouter();
 	const { address, isConnected } = useAccount();
 	const { signMessageAsync } = useSignMessage();
 	const [txHash, setTxHash] = useState('');
@@ -56,6 +58,7 @@ export default function ReceiveMoney({
 											Number(order.totalPrice) - 1
 										).toString()} USDT成功`,
 									);
+									router.refresh();
 								})
 								.catch((err) => {
 									messageApi.error(`领取失败，${err}`);

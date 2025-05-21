@@ -27,7 +27,6 @@ type ProductInput = {
 	createdAt: bigint;
 	companyId: bigint;
 	companyName: string;
-	price: bigint;
 };
 
 const ProductTable: React.FC<ProductTableProps> = ({
@@ -55,7 +54,6 @@ const ProductTable: React.FC<ProductTableProps> = ({
 					companyId: BigInt(p.type.companyId),
 					companyName: (await fetchCompanyById(p.type.companyId))
 						?.name!,
-					price: p.type.price,
 				};
 			} else {
 				return null;
@@ -87,7 +85,6 @@ const ProductTable: React.FC<ProductTableProps> = ({
 					productInput.createdAt,
 					productInput.companyId,
 					productInput.companyName,
-					productInput.price,
 				],
 			});
 			messageApi.success('商品上链交易发送成功！');

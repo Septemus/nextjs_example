@@ -157,7 +157,6 @@ export default async function Page(props: { params: Promise<{ id: string }> }) {
 											<Descriptions.Item label="收货人">
 												{po.buyerName}
 											</Descriptions.Item>
-
 										</Descriptions>
 									),
 								},
