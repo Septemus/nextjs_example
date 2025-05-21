@@ -19,11 +19,11 @@ export default async function PurchasePage() {
 						key={product.id}
 						className="border p-4 rounded shadow hover:shadow-md transition relative	"
 					>
-						{product.coverUrl && (
+						{product.coverCid && (
 							<img
-								src={product.coverUrl}
+								src={`/api/pinita/file?cid=${product.coverCid}`}
 								alt={product.name}
-								className="w-full h-40 object-cover mb-3 rounded"
+								className="w-auto h-40 object-cover mb-3 rounded"
 							/>
 						)}
 						<h2 className="text-xl font-semibold">
