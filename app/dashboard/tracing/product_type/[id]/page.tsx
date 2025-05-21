@@ -43,8 +43,15 @@ export default async function Page(props: { params: Promise<{ id: string }> }) {
 						symbol="USDT"
 					/>
 				</Descriptions.Item>
-				<Descriptions.Item label="库存数量">
+				<Descriptions.Item label="生产数量">
 					{product_type.products.length}
+				</Descriptions.Item>
+				<Descriptions.Item label="库存数量">
+					{
+						product_type.products.filter(
+							(p) => p.status === ProductStatus.MANUFACTURING,
+						).length
+					}
 				</Descriptions.Item>
 				<Descriptions.Item label="上链数量">
 					{onChainNumber.get(product_type.id)}
