@@ -28,7 +28,6 @@ const manufacturerLinks = [
 		href: '/dashboard/orders',
 		icon: DocumentDuplicateIcon,
 	},
-	{ name: '客户管理', href: '/dashboard/customers', icon: UserGroupIcon },
 	{ name: '商品溯源', href: '/dashboard/tracing', icon: NewspaperIcon },
 ];
 const distributorLinks = [
@@ -48,7 +47,6 @@ const distributorLinks = [
 		href: '/dashboard/orders',
 		icon: DocumentDuplicateIcon,
 	},
-	{ name: '客户管理', href: '/dashboard/customers', icon: UserGroupIcon },
 ];
 
 export default function NavLinks() {
