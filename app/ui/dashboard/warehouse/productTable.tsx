@@ -1,18 +1,26 @@
 'use client';
 import FilterTable from '@/app/ui/components/FilterTable';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button, message, Popconfirm } from 'antd';
 import Link from 'next/link';
 import { useWriteContract } from 'wagmi';
 import { abi, contractAddress } from '@/contracts/index';
-import { product_types, products, ProductStatus } from '@/generated/prisma';
+import {
+	product_types,
+	products,
+	ProductStatus,
+	Role,
+	users,
+} from '@/generated/prisma';
 import {
 	fetchCompanyById,
 	fetchProductById,
+	fetchUserByEmail,
 	fetchUserById,
 } from '@/app/lib/data';
 import { UsdtCircleColorful } from '@ant-design/web3-icons';
 import ClientCryptoPrice from '../../components/ClientCryptoPrice';
+import { useSession } from 'next-auth/react';
 type Row = product_types & { products: products[] };
 interface ProductTableProps {
 	product_types: Row[];
@@ -33,8 +41,15 @@ const ProductTable: React.FC<ProductTableProps> = ({
 	product_types,
 	productId_isOnChain,
 }) => {
+	const session = useSession();
 	const [messageApi, contextHolder] = message.useMessage();
 	const { writeContractAsync, isPending } = useWriteContract();
+	const [user, setUser] = useState<users | null>(null);
+	useEffect(() => {
+		fetchUserByEmail(session.data?.user?.email!).then((res) => {
+			setUser(res);
+		});
+	}, []);
 	const handleUploadToBlockchain = async (record_id: string | number) => {
 		if (typeof record_id === 'string') {
 			record_id = parseInt(record_id);
@@ -197,40 +212,42 @@ const ProductTable: React.FC<ProductTableProps> = ({
 					);
 				}}
 			>
-				{(id: number | string) => {
-					return (
-						<>
-							<Link
-								href={`/dashboard/product/create/${id}`}
-								className="mr-2"
-							>
-								<Button type="primary">添加记录</Button>
-							</Link>
-							<Popconfirm
-								title="确定要删除吗？"
-								onConfirm={() => {}}
-								okText="是"
-								cancelText="否"
-							>
-								<Button
-									variant="solid"
-									color="danger"
-									className="mr-2"
-								>
-									删除
-								</Button>
-							</Popconfirm>
-							<Link
-								href={`/dashboard/product_type/update/${id}`}
-								className="mr-2"
-							>
-								<Button variant="solid" color="green">
-									修改
-								</Button>
-							</Link>
-						</>
-					);
-				}}
+				{user?.role === Role.MANUFACTURER
+					? (id: number | string) => {
+							return (
+								<>
+									<Link
+										href={`/dashboard/product/create/${id}`}
+										className="mr-2"
+									>
+										<Button type="primary">添加记录</Button>
+									</Link>
+									<Popconfirm
+										title="确定要删除吗？"
+										onConfirm={() => {}}
+										okText="是"
+										cancelText="否"
+									>
+										<Button
+											variant="solid"
+											color="danger"
+											className="mr-2"
+										>
+											删除
+										</Button>
+									</Popconfirm>
+									<Link
+										href={`/dashboard/product_type/update/${id}`}
+										className="mr-2"
+									>
+										<Button variant="solid" color="green">
+											修改
+										</Button>
+									</Link>
+								</>
+							);
+						}
+					: undefined}
 			</FilterTable>
 		</>
 	);

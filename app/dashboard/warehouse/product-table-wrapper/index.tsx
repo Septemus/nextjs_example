@@ -1,7 +1,7 @@
 import prisma from '@/app/lib/prisma';
 import ProductTable from '@/app/ui/dashboard/warehouse/productTable';
 import { auth } from '@/auth';
-import { fetchProductIsOnChain } from '@/app/lib/data';
+import { fetchProductIsOnChain, fetchUserProductTypes } from '@/app/lib/data';
 export default async function ProductTableWrapper({ take }: { take?: number }) {
 	const session = await auth();
 	if (!session?.user?.email) {
@@ -10,16 +10,9 @@ export default async function ProductTableWrapper({ take }: { take?: number }) {
 	// 根据用户邮箱查公司 ID
 	const user = await prisma.users.findUnique({
 		where: { email: session.user.email },
-		select: { foundedCompany: true, companiesId: true },
+		include: { foundedCompany: true },
 	});
-	let product_types = await prisma.product_types.findMany({
-		where: {
-			companyId: user?.companiesId || user?.foundedCompany[0].id!,
-		},
-		include: {
-			products: true,
-		},
-	}); // 从数据库取商品列表
+	let product_types = await fetchUserProductTypes(user!);
 	if (take) {
 		product_types = product_types.slice(0, take);
 	}

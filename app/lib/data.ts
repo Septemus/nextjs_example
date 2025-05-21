@@ -316,7 +316,23 @@ export async function fetchUserProductTypes(
 			],
 		},
 		include: {
-			products: true,
+			products: {
+				where: {
+					OR: [
+						{
+							currentOwnerId: u.id,
+						},
+						{
+							creatorId: u.id,
+						},
+						{
+							type: {
+								companyId: u.companiesId as number,
+							},
+						},
+					],
+				},
+			},
 			manufacturerCompany: true,
 		},
 	});
