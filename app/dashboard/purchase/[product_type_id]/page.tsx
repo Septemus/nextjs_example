@@ -2,6 +2,7 @@ import { fetchProductTypeById } from '@/app/lib/data';
 import ClientCryptoPrice from '@/app/ui/components/ClientCryptoPrice';
 import { UsdtCircleColorful } from '@/app/ui/components/ClientIcons/index';
 import ProductPurchaseForm from './PurchaseForm';
+import { Image } from 'antd';
 export default async function ProductDetailPage({
 	params,
 }: {
@@ -15,7 +16,10 @@ export default async function ProductDetailPage({
 		<div className="p-6 max-w-4xl mx-auto space-y-6">
 			<h1 className="text-2xl font-bold">{product_type.name}</h1>
 			<p className="text-gray-600">{product_type.description}</p>
-
+			<Image
+				src={`/api/pinita/file?cid=${product_type.coverCid}`}
+				className="rounded-2xl shadow-md max-h-72"
+			/>
 			<div className="grid grid-cols-2 gap-4 mt-4">
 				<div>
 					<strong>制造商：</strong>{' '}
