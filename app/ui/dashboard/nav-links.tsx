@@ -6,6 +6,7 @@ import {
 	ArchiveBoxArrowDownIcon,
 	BuildingStorefrontIcon,
 	NewspaperIcon,
+	ShoppingBagIcon,
 } from '@heroicons/react/24/outline';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -36,6 +37,11 @@ const distributorLinks = [
 		name: '商品采购',
 		href: '/dashboard/purchase',
 		icon: BuildingStorefrontIcon,
+	},
+	{
+		name: '商品零售',
+		href: '/dashboard/retail',
+		icon: ShoppingBagIcon,
 	},
 	{
 		name: '库存管理',
