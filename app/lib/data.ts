@@ -327,7 +327,7 @@ export async function fetchUserProductTypes(
 						},
 						{
 							type: {
-								companyId: u.companiesId as number,
+								companyId: u.companiesId ?? undefined,
 							},
 						},
 					],
