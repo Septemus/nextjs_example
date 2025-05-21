@@ -53,7 +53,7 @@ export default function ReceiveMoney({
 									setTxHash(res);
 									messageApi.success(
 										`领取 ${(
-											Number(order.productType.price) - 1
+											Number(order.totalPrice) - 1
 										).toString()} USDT成功`,
 									);
 								})
