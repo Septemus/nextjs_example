@@ -10,7 +10,7 @@ export default async function Page() {
 	return (
 		<div className="w-full">
 			<div className="flex justify-between items-center mb-6">
-				<h1 className="text-2xl font-bold">商品管理</h1>
+				<h1 className="text-2xl font-bold">库存管理</h1>
 			</div>
 			<div className="flex justify-end mb-4">
 				<Link href="/dashboard/product_type/create">

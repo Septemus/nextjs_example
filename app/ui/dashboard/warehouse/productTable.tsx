@@ -117,7 +117,7 @@ const ProductTable: React.FC<ProductTableProps> = ({
 			key: 'name',
 		},
 		{
-			title: '商品价格',
+			title: '商品采购价格',
 			dataIndex: 'price',
 			key: 'price',
 			render: (price: number) => {
