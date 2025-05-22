@@ -1,8 +1,10 @@
 import { Card } from 'antd';
 import Meta from 'antd/es/card/Meta';
 import Link from 'next/link';
+import { ReactNode } from 'react';
 export default function CardsGrid({
 	cardsContent,
+	children,
 }: {
 	cardsContent: {
 		id: string | number | bigint;
@@ -11,6 +13,7 @@ export default function CardsGrid({
 		title: string;
 		description: string;
 	}[];
+	children?: ReactNode;
 }) {
 	return (
 		<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
@@ -46,6 +49,7 @@ export default function CardsGrid({
 					</Link>
 				);
 			})}
+			{children}
 		</div>
 	);
 }

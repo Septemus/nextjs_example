@@ -15,11 +15,7 @@ export default async function Layout({ children }: { children: ReactNode }) {
 				<RadioGroupWrapper />
 			</div>
 			{/* 将 products 传给前端组件 */}
-			<Suspense fallback>
-				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-					{children}
-				</div>
-			</Suspense>
+			<Suspense fallback>{children}</Suspense>
 		</div>
 	);
 }
