@@ -11,6 +11,7 @@ import { CryptoInput, CryptoPrice } from '@ant-design/web3';
 import { USDT } from '@ant-design/web3-assets/tokens';
 import { UsdtCircleColorful, USDTCircleFilled } from '@ant-design/web3-icons';
 import { Button, DatePicker, Input, Select, message } from 'antd';
+import useMessage from 'antd/es/message/useMessage';
 import dayjs from 'dayjs';
 import { useFormik } from 'formik';
 import { useSession } from 'next-auth/react';
@@ -28,7 +29,7 @@ export default function CreateProductForm({
 	users: users[];
 }) {
 	const session = useSession();
-	const [messageApi, contextHolder] = message.useMessage();
+	const [messageApi, contextHolder] = useMessage();
 	const router = useRouter();
 	const [currentTime, setCurrentTime] = useState(dayjs());
 

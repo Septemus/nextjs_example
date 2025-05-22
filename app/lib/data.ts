@@ -333,32 +333,31 @@ export async function fetchCommodotiesByUser(user: users) {
 	});
 }
 
-export async function fetchCommodotyById(id: number, user: users) {
-	return await prisma.commodoty.findUnique({
+export async function fetchCommodotyById(id: number) {
+	const ret = (await prisma.commodoty.findUnique({
 		where: {
 			id,
 		},
 		include: {
+			creator: true,
 			productType: {
 				include: {
 					products: {
-						where: {
-							OR: [
-								{
-									currentOwnerId: user.id,
-								},
-								{ creatorId: user.id },
-								{
-									type: {
-										companyId:
-											user.companiesId ?? undefined,
-									},
-								},
-							],
+						include: {
+							currentOwner: true,
 						},
 					},
+					manufacturerCompany: true,
 				},
 			},
 		},
+	}))!;
+	ret.productType.products = ret?.productType.products.filter((p) => {
+		return (
+			p.currentOwnerId === ret.creatorId ||
+			p.creatorId === ret.creatorId ||
+			p.currentOwner.companiesId === ret.creator.companiesId
+		);
 	});
+	return ret;
 }
