@@ -11,7 +11,7 @@ export default function CardsGrid({
 		linkHref: string;
 		coverUrl: string;
 		title: string;
-		description: string;
+		description: ReactNode;
 	}[];
 	children?: ReactNode;
 }) {
@@ -41,7 +41,7 @@ export default function CardsGrid({
 								}
 								description={
 									<div className="text-center">
-										<span>{card.description}</span>
+										{card.description}
 									</div>
 								}
 							></Meta>

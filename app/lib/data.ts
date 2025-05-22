@@ -258,6 +258,40 @@ export async function fetchProductOrdersOnChain(serialNumber: string) {
 export async function fetchProductOnChain(serialNumber: string) {
 	return await getProductBySerialNumber(serialNumber);
 }
+
+export async function fetchCommodoties() {
+	const ret = await prisma.commodoty.findMany({
+		include: {
+			productType: {
+				include: {
+					products: {
+						include: {
+							creator: true,
+							currentOwner: true,
+						},
+					},
+				},
+			},
+			creator: {
+				include: {
+					mycompany: true,
+					foundedCompany: true,
+				},
+			},
+		},
+	});
+	ret.forEach((c) => {
+		c.productType.products = c.productType.products.filter((p) => {
+			return (
+				p.currentOwnerId === c.creatorId ||
+				p.creatorId === c.creatorId ||
+				p.currentOwner.companiesId === c.creator.companiesId
+			);
+		});
+	});
+	return ret;
+}
+
 export async function fetchCommodotiesByUser(user: users) {
 	return await prisma.commodoty.findMany({
 		where: {
