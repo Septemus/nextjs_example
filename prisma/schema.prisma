@@ -28,6 +28,7 @@ model users {
 
   buyOrders     orders[]     @relation("buy_orders") // 新增：我下过的订单
   sellOrders     orders[]     @relation("sell_orders") // 新增：我下过的订单
+  createdCommodoties Commodoty[] @relation("commodoty_creator")
 }
 
 model companies {
@@ -63,6 +64,7 @@ model product_types {
 
   products      products[]    @relation("type_to_products")
   orders orders[] @relation("orders")
+  commodoty Commodoty? @relation("commodoty_type")
 }
 
 model products {
@@ -125,4 +127,14 @@ model order_items {
   product    products @relation("product_order",fields: [productId], references: [id], onUpdate: Cascade)
 
   @@unique([orderId, productId]) // 同一订单中不能重复添加同一个商品
+}
+
+model Commodoty {
+  id         Int      @id @default(autoincrement())
+  productTypeId Int @unique
+  creatorId String @db.Uuid
+  CommodotyPrice BigInt
+
+  productType product_types @relation("commodoty_type",fields: [productTypeId],references: [id],onUpdate: Cascade,onDelete: Cascade)
+  creator users @relation("commodoty_creator",fields: [creatorId],references: [id],onUpdate: Cascade)
 }
