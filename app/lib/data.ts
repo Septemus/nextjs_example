@@ -189,7 +189,18 @@ export async function fetchOrdersByCompany(company_id: number) {
 				},
 				{
 					buyer: {
-						companiesId: company_id,
+						OR: [
+							{
+								companiesId: company_id,
+							},
+							{
+								foundedCompany: {
+									some: {
+										id: company_id,
+									},
+								},
+							},
+						],
 					},
 				},
 			],

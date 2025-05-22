@@ -1,30 +1,33 @@
 'use client';
 
 import { createOrder } from '@/app/lib/actions';
-import { fetchProductTypeById, fetchUserByEmail } from '@/app/lib/data';
+import { fetchUserByEmail } from '@/app/lib/data';
 import ClientCryptoPrice from '@/app/ui/components/ClientCryptoPrice';
 // import { abi, contractAddress, platformWalletAddr } from '@/contracts/index';
-import * as contractsRelated from '@/contracts/index';
-import { product_types, products } from '@/generated/prisma';
 import { UsdtCircleColorful } from '@ant-design/web3-icons';
 import { Button, Input, InputNumber, message } from 'antd';
 import { useFormik } from 'formik';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { parseUnits } from 'viem';
-import { useWriteContract } from 'wagmi';
 import * as Yup from 'yup';
 
 export default function ProductPurchaseForm({
-	product_type,
+	sellerId,
+	lockedPrice,
+	maxLength,
+	handleSubmit,
 }: {
-	product_type: NonNullable<Awaited<ReturnType<typeof fetchProductTypeById>>>;
+	sellerId: string;
+	lockedPrice: bigint;
+	maxLength: number;
+	handleSubmit: (
+		val: Parameters<typeof createOrder>[0]['order_info'],
+	) => Promise<void>;
 }) {
-	const { writeContractAsync, isPending } = useWriteContract();
 	const [messageApi, contextHolder] = message.useMessage();
-	const router = useRouter();
 	const session = useSession();
+	const router = useRouter();
 	const formik = useFormik({
 		initialValues: {
 			quantity: 1,
@@ -33,8 +36,8 @@ export default function ProductPurchaseForm({
 			recipientName: '',
 			phoneNumber: '',
 			buyerId: '',
-			sellerId: product_type.manufacturerCompany.founderId,
-			lockedPrice: product_type.price,
+			sellerId,
+			lockedPrice,
 		},
 		validationSchema: Yup.object({
 			quantity: Yup.number()
@@ -48,36 +51,12 @@ export default function ProductPurchaseForm({
 			buyerId: Yup.string().required('买家id未加载成功'),
 		}),
 		onSubmit: (values) => {
-			writeContractAsync({
-				address: contractsRelated.contractAddress.USDT as `0x${string}`,
-				abi: contractsRelated.abi.USDT.abi,
-				functionName: 'transfer',
-				args: [
-					contractsRelated.platformWalletAddr,
-					parseUnits(`${totalCost}`, 18),
-				],
-			})
+			handleSubmit(values)
 				.then(() => {
-					return createOrder({
-						product_type,
-						order_info: values,
-					});
+					return messageApi.success('购买商品成功');
 				})
 				.then(() => {
-					return messageApi.open({
-						type: 'success',
-						content: '添加商品记录成功',
-					});
-				})
-				.then(() => {
-					router.replace('/dashboard/purchase');
-				})
-				.catch((err) => {
-					console.error(err);
-					messageApi.open({
-						type: 'error',
-						content: '添加商品记录失败',
-					});
+					router.back();
 				});
 		},
 	});
@@ -95,8 +74,8 @@ export default function ProductPurchaseForm({
 	}, [totalCost]);
 
 	useEffect(() => {
-		setTotalCost(product_type.price * BigInt(formik.values.quantity));
-	}, [formik.values.quantity, product_type.price]);
+		setTotalCost(lockedPrice * BigInt(formik.values.quantity));
+	}, [formik.values.quantity, lockedPrice]);
 
 	return (
 		<form
@@ -109,7 +88,7 @@ export default function ProductPurchaseForm({
 				<InputNumber
 					name="quantity"
 					min={1}
-					max={product_type.products.length}
+					max={maxLength}
 					defaultValue={1}
 					changeOnWheel
 					onChange={(v) => {
