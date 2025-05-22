@@ -64,7 +64,7 @@ model product_types {
 
   products      products[]    @relation("type_to_products")
   orders orders[] @relation("orders")
-  commodoty Commodoty? @relation("commodoty_type")
+  commodoty Commodoty[] @relation("commodoty_type")
 }
 
 model products {

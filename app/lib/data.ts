@@ -1,15 +1,5 @@
 'use server';
-import postgres from 'postgres';
-import {
-	CompanyField,
-	CustomerField,
-	CustomersTableType,
-	InvoiceForm,
-	InvoicesTable,
-	LatestInvoiceRaw,
-	Revenue,
-} from './definitions';
-import { formatCurrency } from './utils';
+
 import prisma from './prisma';
 import {
 	detectIsOnChain,
@@ -126,6 +116,7 @@ export async function fetchUserProductTypes(
 				},
 			},
 			manufacturerCompany: true,
+			commodoty: true,
 		},
 	});
 }
@@ -266,4 +257,33 @@ export async function fetchProductOrdersOnChain(serialNumber: string) {
 }
 export async function fetchProductOnChain(serialNumber: string) {
 	return await getProductBySerialNumber(serialNumber);
+}
+export async function fetchCommodotiesByUser(user: users) {
+	return await prisma.commodoty.findMany({
+		where: {
+			creatorId: user.id,
+		},
+		include: {
+			productType: {
+				include: {
+					products: {
+						where: {
+							OR: [
+								{
+									currentOwnerId: user.id,
+								},
+								{ creatorId: user.id },
+								{
+									type: {
+										companyId:
+											user.companiesId ?? undefined,
+									},
+								},
+							],
+						},
+					},
+				},
+			},
+		},
+	});
 }
