@@ -365,3 +365,12 @@ async function recordOrderOnChain(id: number) {
 		throw new Error('order not found');
 	}
 }
+export async function addCommodoty(commodoty: {
+	productTypeId: number;
+	creatorId: string;
+	CommodotyPrice: bigint;
+}) {
+	await prisma.commodoty.create({
+		data: commodoty,
+	});
+}
