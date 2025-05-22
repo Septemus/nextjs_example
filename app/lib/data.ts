@@ -287,3 +287,33 @@ export async function fetchCommodotiesByUser(user: users) {
 		},
 	});
 }
+
+export async function fetchCommodotyById(id: number, user: users) {
+	return await prisma.commodoty.findUnique({
+		where: {
+			id,
+		},
+		include: {
+			productType: {
+				include: {
+					products: {
+						where: {
+							OR: [
+								{
+									currentOwnerId: user.id,
+								},
+								{ creatorId: user.id },
+								{
+									type: {
+										companyId:
+											user.companiesId ?? undefined,
+									},
+								},
+							],
+						},
+					},
+				},
+			},
+		},
+	});
+}

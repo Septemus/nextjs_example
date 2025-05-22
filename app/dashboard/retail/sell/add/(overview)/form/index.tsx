@@ -54,7 +54,9 @@ export default function AddSellForm({
 					CommodotyPrice: values.price!,
 				})
 					.then(() => {
-						messageApi.success('添加商品到零售成功');
+						return messageApi.success('添加商品到零售成功', 500);
+					})
+					.then(() => {
 						router.back();
 					})
 					.catch((err) => {
@@ -158,16 +160,6 @@ export default function AddSellForm({
 							className="mr-4"
 						>
 							提交
-						</Button>
-						<Button
-							htmlType="button"
-							color="danger"
-							variant="solid"
-							onClick={() => {
-								router.back();
-							}}
-						>
-							返回
 						</Button>
 					</form>
 				);

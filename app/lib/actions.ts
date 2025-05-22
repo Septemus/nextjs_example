@@ -374,3 +374,18 @@ export async function addCommodoty(commodoty: {
 		data: commodoty,
 	});
 }
+export async function updateCommodoty(
+	id: number,
+	commodoty: {
+		productTypeId?: number;
+		creatorId?: string;
+		CommodotyPrice: bigint;
+	},
+) {
+	await prisma.commodoty.update({
+		where: { id },
+		data: {
+			...commodoty,
+		},
+	});
+}
