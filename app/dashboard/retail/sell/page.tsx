@@ -12,7 +12,7 @@ export default function Page() {
 					hoverable
 					style={{ width: 240 }}
 					cover={
-						<div className="h-44 pt-1 text-center">
+						<div className="h-44 pt-6 text-center box-border">
 							<PlusCircleOutlined
 								className="text-9xl"
 								style={{
