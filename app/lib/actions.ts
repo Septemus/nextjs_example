@@ -15,7 +15,7 @@ import {
 	ProductStatus,
 	Role,
 } from '@/generated/prisma';
-import { fetchOrderById } from './data';
+import { fetchCommodotyById, fetchOrderById } from './data';
 import {
 	getContract,
 	InvalidParameterError,
@@ -171,6 +171,49 @@ export async function updateProductType(
 		},
 		data: {
 			...p,
+		},
+	});
+}
+
+export async function createCommodotyOrder(o: {
+	commodoty: NonNullable<Awaited<ReturnType<typeof fetchCommodotyById>>>;
+	order_info: {
+		quantity: number;
+		shippingAddress: string;
+		recipientName: string;
+		totalPrice: number;
+		phoneNumber: string;
+		buyerId: string;
+		lockedPrice: bigint;
+	};
+}) {
+	const selectedProducts = o.commodoty.productType.products.slice(
+		0,
+		o.order_info.quantity,
+	);
+	await prisma.orders.create({
+		data: {
+			productTypeId: o.commodoty.productTypeId,
+			...o.order_info,
+			order_items: {
+				create: selectedProducts.map((p) => {
+					return {
+						productId: p.id,
+					};
+				}),
+			},
+		},
+	});
+	await prisma.products.updateMany({
+		where: {
+			id: {
+				in: selectedProducts.map((p) => {
+					return p.id;
+				}),
+			},
+		},
+		data: {
+			status: ProductStatus.DISTRIBUTING,
 		},
 	});
 }
