@@ -138,7 +138,7 @@ const ProductTable: React.FC<ProductTableProps> = ({
 			title: '描述',
 			dataIndex: 'description',
 			key: 'description',
-			ellipsis: true,
+			width: 400,
 		},
 	];
 

@@ -178,6 +178,8 @@ function FilterTable<
 			title: '操作',
 			key: 'action',
 			render: (_: any, record: DataType) => <>{children(record.id)}</>,
+			fixed: 'right',
+			width: 100,
 		} as any);
 	}
 
