@@ -82,7 +82,7 @@ model products {
 
   creator           users         @relation("created_products", fields: [creatorId], references: [id], onUpdate: Cascade)
   currentOwner      users         @relation("owned_products", fields: [currentOwnerId], references: [id], onUpdate: Cascade)
-  order order_items? @relation("product_order")
+  order order_items[] @relation("product_order")
 }
 
 
@@ -120,7 +120,7 @@ model orders {
 model order_items {
   id         Int      @id @default(autoincrement())
   orderId    Int
-  productId  Int @unique
+  productId  Int 
   createdAt  DateTime @default(now())
 
   order      orders   @relation("order_items",fields: [orderId], references: [id], onUpdate: Cascade,onDelete: Cascade)
