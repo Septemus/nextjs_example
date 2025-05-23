@@ -193,19 +193,25 @@ const ProductTable: React.FC<ProductTableProps> = ({
 								const isOnchain = productId_isOnChain.get(
 									id as number,
 								);
-								return (
+								return !isOnchain ? (
 									<Button
 										variant="solid"
-										color={isOnchain ? 'green' : 'blue'}
+										color={'blue'}
 										loading={isPending}
 										onClick={() => {
-											if (!isOnchain) {
-												handleUploadToBlockchain(id);
-											}
+											handleUploadToBlockchain(id);
 										}}
 									>
-										{isOnchain ? '已上链' : '数据上链'}
+										{'数据上链'}
 									</Button>
+								) : (
+									<Link
+										href={`/dashboard/tracing/product/${id}`}
+									>
+										<Button variant="solid" color="green">
+											商品追溯
+										</Button>
+									</Link>
 								);
 							}}
 						</FilterTable>
