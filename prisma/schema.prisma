@@ -131,10 +131,11 @@ model order_items {
 
 model Commodoty {
   id         Int      @id @default(autoincrement())
-  productTypeId Int @unique
+  productTypeId Int 
   creatorId String @db.Uuid
   CommodotyPrice BigInt
 
+  @@unique([creatorId,productTypeId])
   productType product_types @relation("commodoty_type",fields: [productTypeId],references: [id],onUpdate: Cascade,onDelete: Cascade)
   creator users @relation("commodoty_creator",fields: [creatorId],references: [id],onUpdate: Cascade)
 }

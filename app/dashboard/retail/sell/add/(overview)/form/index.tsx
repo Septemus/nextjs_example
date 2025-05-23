@@ -54,7 +54,7 @@ export default function AddSellForm({
 					CommodotyPrice: values.price!,
 				})
 					.then(() => {
-						return messageApi.success('添加商品到零售成功', 500);
+						return messageApi.success('添加商品到零售成功');
 					})
 					.then(() => {
 						router.back();
