@@ -1,4 +1,3 @@
-import LatestInvoices from '@/app/ui/dashboard/latest-invoices';
 import { lusitana } from '@/app/ui/fonts';
 import { Suspense } from 'react';
 import { LatestInvoicesSkeleton, CardsSkeleton } from '@/app/ui/skeletons';
@@ -7,12 +6,21 @@ import DashInfo from './dash-info';
 import ProductTableWrapper from '../warehouse/product-table-wrapper';
 import OrderTableWrapper from '../orders/order-table-wrapper';
 import { Skeleton } from 'antd';
+import { fetchUserByEmail } from '@/app/lib/data';
+import { Role } from '@/generated/prisma';
+import { redirect } from 'next/navigation';
+import { auth } from '@/auth';
 
 export const metadata: Metadata = {
 	title: 'Overview',
 	description: 'Overview page for Next.js dashboard',
 };
 export default async function Page() {
+	const session = await auth();
+	const user = await fetchUserByEmail(session?.user?.email!);
+	if (user?.role === Role.CUSTOMER) {
+		redirect('/dashboard/customer/retail');
+	}
 	return (
 		<main>
 			<h1 className={`${lusitana.className} mb-4 text-xl md:text-2xl`}>

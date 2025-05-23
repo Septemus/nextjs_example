@@ -55,6 +55,19 @@ const distributorLinks = [
 	},
 ];
 
+const customerLinks = [
+	{
+		name: '商品购买',
+		href: '/dashboard/customer/retail',
+		icon: ShoppingBagIcon,
+	},
+	{
+		name: '订单管理',
+		href: '/dashboard/orders',
+		icon: DocumentDuplicateIcon,
+	},
+];
+
 export default function NavLinks() {
 	const session = useSession();
 	const [links, setLinks] = useState<
@@ -77,7 +90,8 @@ export default function NavLinks() {
 						setLinks(manufacturerLinks);
 						break;
 					}
-					default: {
+					case Role.CUSTOMER: {
+						setLinks(customerLinks);
 						break;
 					}
 				}

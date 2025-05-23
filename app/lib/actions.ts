@@ -15,7 +15,7 @@ import {
 	ProductStatus,
 	Role,
 } from '@/generated/prisma';
-import { fetchCommodotyById, fetchOrderById } from './data';
+import { fetchCommodotyById, fetchOrderById, fetchUserByEmail } from './data';
 import {
 	getContract,
 	InvalidParameterError,
@@ -40,6 +40,11 @@ export async function authenticate(
 	formData: FormData,
 ) {
 	try {
+		const email = formData.get('email');
+		const user = await fetchUserByEmail(email as string);
+		if (user && user.role === Role.CUSTOMER) {
+			formData.set('redirectTo', '/dashboard/customer/retail');
+		}
 		await signIn('credentials', formData);
 	} catch (error) {
 		if (error instanceof AuthError) {
