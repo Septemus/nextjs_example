@@ -11,13 +11,14 @@ import {
 	ApiOutlined,
 	GlobalOutlined,
 	ShopOutlined,
+	ShoppingOutlined,
 	TruckOutlined,
 } from '@ant-design/icons';
 import { notFound } from 'next/navigation';
 import ClientCryptoPrice from '@/app/ui/components/ClientCryptoPrice';
 import { UsdtCircleColorful } from '@/app/ui/components/ClientIcons';
 import { parseUnits } from 'viem';
-import { orders } from '@/generated/prisma';
+import { orders, Role } from '@/generated/prisma';
 export default async function Page(props: { params: Promise<{ id: string }> }) {
 	const params = await props.params;
 	const id = parseInt(params.id);
@@ -71,6 +72,7 @@ export default async function Page(props: { params: Promise<{ id: string }> }) {
 				<h1 className="text-2xl font-bold">商品溯源</h1>
 			</div>
 			<Steps
+				direction="vertical"
 				current={productOrdersOnChain.length * 2}
 				items={[
 					{
@@ -84,6 +86,7 @@ export default async function Page(props: { params: Promise<{ id: string }> }) {
 									label: { fontSize: 12 },
 									content: { fontSize: 12 },
 								}}
+								className="!pt-3"
 							>
 								<Descriptions.Item label="序列号">
 									{productOnChain.serialNumber}
@@ -105,6 +108,7 @@ export default async function Page(props: { params: Promise<{ id: string }> }) {
 									description: (
 										<Descriptions
 											column={1}
+											className="!pt-3"
 											styles={{
 												label: { fontSize: 12 },
 												content: { fontSize: 12 },
@@ -129,12 +133,32 @@ export default async function Page(props: { params: Promise<{ id: string }> }) {
 											<Descriptions.Item label="发货地址">
 												{po.shippingOriginAddress}
 											</Descriptions.Item>
+											<Descriptions.Item label="发货人">
+												{po.sellerName}
+											</Descriptions.Item>
+											<Descriptions.Item label="成交时间">
+												{new Date(
+													Number(
+														po.timestamp * 1000n,
+													),
+												).toLocaleString()}
+											</Descriptions.Item>
 										</Descriptions>
 									),
 								},
 								{
-									title: '销售商',
-									icon: <ShopOutlined />,
+									title:
+										offlineOrdersData.get(po.orderId)?.buyer
+											.role === Role.DISTRIBUTOR
+											? '销售商'
+											: '消费者',
+									icon:
+										offlineOrdersData.get(po.orderId)?.buyer
+											.role === Role.DISTRIBUTOR ? (
+											<ShopOutlined />
+										) : (
+											<ShoppingOutlined />
+										),
 									subTitle:
 										offlineOrdersData.get(po.orderId)?.buyer
 											.mycompany?.name ??
@@ -145,6 +169,7 @@ export default async function Page(props: { params: Promise<{ id: string }> }) {
 									description: (
 										<Descriptions
 											column={1}
+											className="!pt-3"
 											styles={{
 												label: { fontSize: 12 },
 												content: { fontSize: 12 },
