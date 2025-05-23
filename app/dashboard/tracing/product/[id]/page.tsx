@@ -163,7 +163,7 @@ export default async function Page(props: { params: Promise<{ id: string }> }) {
 										offlineOrdersData.get(po.orderId)?.buyer
 											.mycompany?.name ??
 										offlineOrdersData.get(po.orderId)?.buyer
-											.foundedCompany[0].name ??
+											.foundedCompany[0]?.name ??
 										offlineOrdersData.get(po.orderId)?.buyer
 											.email,
 									description: (
