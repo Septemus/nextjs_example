@@ -4,6 +4,8 @@ import FilterTable from '../../components/FilterTable';
 import ClientCryptoPrice from '../../components/ClientCryptoPrice';
 import { UsdtCircleColorful } from '../../components/ClientIcons';
 import { product_types, products, ProductStatus } from '@/generated/prisma';
+import Link from 'next/link';
+import { Button } from 'antd';
 
 export default function OrdersItemTable({
 	order,
@@ -95,6 +97,28 @@ export default function OrdersItemTable({
 								title: '状态',
 								dataIndex: 'status',
 								key: 'status',
+							},
+							{
+								title: '操作',
+								dataIndex: 'action',
+								key: 'action',
+								fixed: 'right',
+								width: 100,
+								unsearchable: true,
+								render(_, record) {
+									return (
+										<Link
+											href={`/dashboard/tracing/product/${record.id}`}
+										>
+											<Button
+												variant="solid"
+												color="green"
+											>
+												商品追溯
+											</Button>
+										</Link>
+									);
+								},
 							},
 						]}
 					></FilterTable>

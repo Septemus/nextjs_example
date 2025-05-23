@@ -23,10 +23,12 @@ function FilterTable<
 	columns: {
 		title: string;
 		dataIndex: DataIndex;
-		render?: (val: any) => ReactNode;
+		render?: (...val: any) => ReactNode;
 		unsearchable?: boolean;
 		key: string;
 		ellipsis?: boolean;
+		fixed?: boolean | 'left' | 'right';
+		width?: number;
 	}[];
 	expandedRowRender?: (record: DataType) => React.ReactNode;
 	children?: (id: number | string) => ReactNode;
@@ -185,6 +187,7 @@ function FilterTable<
 				columns={tabColumns}
 				dataSource={dataSource}
 				rowKey="id"
+				scroll={{ x: 'max-content' }}
 				expandable={{
 					expandedRowRender,
 					rowExpandable: () => {
