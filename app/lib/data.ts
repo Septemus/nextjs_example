@@ -210,6 +210,56 @@ export async function fetchOrdersByCompany(company_id: number) {
 		},
 	});
 }
+export async function fetchOrdersByUser(u: users) {
+	return await prisma.orders.findMany({
+		where: {
+			OR: [
+				{
+					seller: {
+						OR: [
+							{
+								id: u.id,
+							},
+							{
+								foundedCompany: {
+									some: {
+										id: u.companiesId ?? -1,
+									},
+								},
+							},
+							{
+								companiesId: u.companiesId ?? -1,
+							},
+						],
+					},
+				},
+				{
+					buyer: {
+						OR: [
+							{
+								id: u.id,
+							},
+							{
+								foundedCompany: {
+									some: {
+										id: u.companiesId ?? -1,
+									},
+								},
+							},
+							{
+								companiesId: u.companiesId ?? -1,
+							},
+						],
+					},
+				},
+			],
+		},
+		include: {
+			productType: true,
+		},
+	});
+}
+
 export async function fetchSellingOrdersByCompany(company_id: number) {
 	return await prisma.orders.findMany({
 		where: {
