@@ -17,12 +17,25 @@ export default async function ProductTableWrapper({ take }: { take?: number }) {
 		product_types = product_types.slice(0, take);
 	}
 	const productId_isOnChain = new Map<number, boolean>();
-	for (const pt of product_types) {
-		for (const p of pt.products) {
-			const isOnchain = await fetchProductIsOnChain(p.serialNumber);
-			productId_isOnChain.set(p.id, isOnchain);
-		}
-	}
+	await Promise.all(
+		product_types.map((pt) => {
+			return new Promise<void>((res, rej) => {
+				const productPromiseArr: Promise<void>[] = [];
+				for (const p of pt.products) {
+					productPromiseArr.push(
+						fetchProductIsOnChain(p.serialNumber).then(
+							(isOnChain) => {
+								productId_isOnChain.set(p.id, isOnChain);
+							},
+						),
+					);
+				}
+				Promise.all(productPromiseArr).then(() => {
+					res();
+				});
+			});
+		}),
+	);
 	return (
 		<ProductTable
 			product_types={product_types}
