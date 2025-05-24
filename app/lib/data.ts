@@ -7,7 +7,7 @@ import {
 	getProductOrders,
 	productExists,
 } from './contract-actions';
-import { companies, products, users } from '@/generated/prisma';
+import { companies, product_types, products, users } from '@/generated/prisma';
 export async function fetchCompanies() {
 	return await prisma.companies.findMany();
 }
@@ -281,9 +281,7 @@ export async function fetchSellingOrdersByCompany(company_id: number) {
 	});
 }
 export async function fetchOnChainNumber(
-	product_types: NonNullable<
-		Awaited<ReturnType<typeof fetchUserProductTypes>>
-	>,
+	product_types: (product_types & { products: products[] })[],
 ) {
 	const onChainNumber = new Map<number, number>();
 	for (const pt of product_types) {
