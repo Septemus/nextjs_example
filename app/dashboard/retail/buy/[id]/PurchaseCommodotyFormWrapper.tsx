@@ -27,7 +27,7 @@ export default function PurchaseCommodotyFormWrapper({
 					functionName: 'transfer',
 					args: [
 						platformWalletAddr,
-						parseUnits(`${o.lockedPrice * BigInt(o.quantity)}`, 18),
+						parseUnits(`${o.lockedPrice * BigInt(o.quantity)}`, 6),
 					],
 				}).then(() => {
 					return createCommodotyOrder({

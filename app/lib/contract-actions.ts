@@ -77,7 +77,7 @@ export async function transferUSDT(addr: `0x${string}`, amount: string) {
 	console.warn(`转移${amount}USDT中...`);
 	const txHash = await USDTContract.write.transfer([
 		addr,
-		parseUnits(amount.toString(), 18),
+		parseUnits(amount.toString(), 6),
 	]);
 	console.warn(`转移USDT成功`, txHash);
 	return txHash;

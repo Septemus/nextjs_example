@@ -3,6 +3,7 @@ import USDT from './abi/USDT';
 import OrderRegistry from './abi/OrderRegistry';
 import { privateKeyToAccount } from 'viem/accounts';
 import { createWalletClient, http } from 'viem';
+import { sepolia } from 'viem/chains';
 export const abi = {
 	ProductRegistry,
 	USDT,
@@ -21,16 +22,7 @@ export const createPlatformWallet = () => {
 	const account = privateKeyToAccount(platformWalletPrivateKey);
 	const client = createWalletClient({
 		account,
-		chain: {
-			id: 1337, // Ganache chain ID by default
-			name: 'Ganache',
-			nativeCurrency: { name: 'ETH', symbol: 'ETH', decimals: 18 },
-			rpcUrls: {
-				default: {
-					http: ['http://127.0.0.1:7545'], // Ganache default RPC
-				},
-			},
-		},
+		chain: sepolia,
 		transport: http(),
 	});
 	return client;

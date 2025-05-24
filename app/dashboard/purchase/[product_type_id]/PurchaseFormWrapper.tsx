@@ -33,7 +33,7 @@ export default function ProductPurchaseFormWrapper({
 						platformWalletAddr,
 						parseUnits(
 							`${values.lockedPrice * BigInt(values.quantity)}`,
-							18,
+							6,
 						),
 					],
 				}).then(() => {

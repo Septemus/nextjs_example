@@ -57,6 +57,9 @@ export default function ProductPurchaseForm({
 				})
 				.then(() => {
 					router.back();
+				})
+				.catch(() => {
+					messageApi.error('购买商品失败');
 				});
 		},
 	});
