@@ -21,6 +21,7 @@ import {
 import { UsdtCircleColorful } from '@ant-design/web3-icons';
 import ClientCryptoPrice from '../../components/ClientCryptoPrice';
 import { useSession } from 'next-auth/react';
+import { ProductStatusSolidity } from '@/app/lib/utils';
 type Row = product_types & { products: products[] };
 interface ProductTableProps {
 	product_types: Row[];
@@ -91,15 +92,20 @@ const ProductTable: React.FC<ProductTableProps> = ({
 				abi: abi.ProductRegistry.abi,
 				functionName: 'registerProduct',
 				args: [
-					BigInt(record?.id!),
-					productInput.name,
-					productInput.description,
-					productInput.serialNumber,
-					productInput.creatorEmail,
-					productInput.manufactureDate,
-					productInput.createdAt,
-					productInput.companyId,
-					productInput.companyName,
+					{
+						id: BigInt(record?.id!),
+						name: productInput.name,
+						description: productInput.description,
+						serialNumber: productInput.serialNumber,
+						creatorEmail: productInput.creatorEmail,
+						manufactureDate: productInput.manufactureDate,
+						createdAt: productInput.createdAt,
+						companyId: productInput.companyId,
+						companyName: productInput.companyName,
+						currentOwnerEmail: productInput.creatorEmail,
+						onChainTimestamp: 0n,
+						status: ProductStatusSolidity.MANUFACTURING,
+					},
 				],
 			});
 			messageApi.success('商品上链交易发送成功！');

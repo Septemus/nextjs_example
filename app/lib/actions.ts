@@ -301,15 +301,22 @@ async function publishOnChainIfNot(
 			await getProductBySerialNumber(oi.product.serialNumber);
 		} catch (err) {
 			await PublishProductOnChain([
-				BigInt(oi.productId),
-				order.productType.name,
-				order.productType.description ?? '',
-				oi.product.serialNumber,
-				oi.product.creator.email,
-				BigInt(oi.product.manufactureDate.getTime()),
-				BigInt(oi.product.createdAt.getTime()),
-				BigInt(order.productType.companyId),
-				order.productType.manufacturerCompany.name,
+				{
+					id: BigInt(oi.productId),
+					name: order.productType.name,
+					description: order.productType.description ?? '',
+					serialNumber: oi.product.serialNumber,
+					creatorEmail: oi.product.creator.email,
+					currentOwnerEmail: oi.product.creator.email,
+					status: ProductStatusSolidity.MANUFACTURING,
+					manufactureDate: BigInt(
+						oi.product.manufactureDate.getTime(),
+					),
+					createdAt: BigInt(oi.product.createdAt.getTime()),
+					companyId: BigInt(order.productType.companyId),
+					companyName: order.productType.manufacturerCompany.name,
+					onChainTimestamp: 0n,
+				},
 			]);
 		}
 	}
@@ -397,17 +404,20 @@ async function recordOrderOnChain(id: number) {
 	const order = await fetchOrderById(id);
 	if (order) {
 		await recordOrder([
-			BigInt(order.id),
-			order?.buyer.name,
-			order?.seller?.name!,
-			order.shippingOriginAddress!,
-			order.shippingAddress,
-			order.order_items.map((oi) => {
-				return oi.product.serialNumber;
-			}),
-			BigInt(order.quantity),
-			order.lockedPrice,
-			order.totalPrice,
+			{
+				orderId: BigInt(order.id),
+				buyerName: order?.buyer.name,
+				sellerName: order?.seller?.name!,
+				shippingOriginAddress: order.shippingOriginAddress!,
+				shippingDestinationAddress: order.shippingAddress,
+				productSerials: order.order_items.map((oi) => {
+					return oi.product.serialNumber;
+				}),
+				quantity: BigInt(order.quantity),
+				lockedPrice: order.lockedPrice,
+				totalPrice: order.totalPrice,
+				timestamp: 0n,
+			},
 		]);
 	} else {
 		throw new Error('order not found');
