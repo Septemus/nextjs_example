@@ -284,16 +284,29 @@ export async function fetchOnChainNumber(
 	product_types: (product_types & { products: products[] })[],
 ) {
 	const onChainNumber = new Map<number, number>();
-	for (const pt of product_types) {
-		onChainNumber.set(pt.id, 0);
-		for (const p of pt.products) {
-			const isOnChain = await fetchProductIsOnChain(p.serialNumber);
-			if (isOnChain) {
-				const oldNumber = await onChainNumber.get(pt.id);
-				onChainNumber.set(pt.id, oldNumber! + 1);
-			}
-		}
-	}
+	await Promise.all(
+		product_types.map((pt) => {
+			return new Promise((res, rej) => {
+				onChainNumber.set(pt.id, 0);
+				const productPromiseArr: Promise<void>[] = [];
+				for (const p of pt.products) {
+					productPromiseArr.push(
+						fetchProductIsOnChain(p.serialNumber).then(
+							(isOnChain) => {
+								if (isOnChain) {
+									const oldNumber = onChainNumber.get(pt.id);
+									onChainNumber.set(pt.id, oldNumber! + 1);
+								}
+							},
+						),
+					);
+				}
+				Promise.all(productPromiseArr).then(() => {
+					res(null);
+				});
+			});
+		}),
+	);
 	return onChainNumber;
 }
 export async function fetchOnChainProducts(
